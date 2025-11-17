@@ -2,15 +2,7 @@
 import { json } from '@sveltejs/kit';
 import { STEAM_KEY } from '$env/static/private';
 
-// simpele in-memory cache (per Node-proces)
-const ownedGamesCache = new Map(); // key: steamid, value: { games, timestamp }
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minuten
-
 async function getOwnedGames(fetch, steamid) {
-  const cached = ownedGamesCache.get(steamid);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.games;
-  }
 
   const url =
     `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
@@ -28,7 +20,6 @@ async function getOwnedGames(fetch, steamid) {
   const data = await res.json();
   const games = data.response?.games ?? [];
 
-  ownedGamesCache.set(steamid, { games, timestamp: Date.now() });
   return games;
 }
 

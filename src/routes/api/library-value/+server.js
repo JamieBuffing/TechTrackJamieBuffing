@@ -2,19 +2,8 @@
 import { json } from '@sveltejs/kit';
 import { STEAM_KEY } from '$env/static/private';
 
-// Cache voor owned games per steamid
-const ownedGamesCache = new Map();
-const OWNED_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minuten
-
-// Cache voor prijs/genre per appid (store API heeft zelf geen key, maar wel rate limits)
-const priceCache = new Map(); // key: appid (string), value: { data, timestamp }
-const PRICE_CACHE_TTL_MS = 60 * 60 * 1000; // 1 uur
 
 async function getOwnedGames(fetch, steamid) {
-  const cached = ownedGamesCache.get(steamid);
-  if (cached && Date.now() - cached.timestamp < OWNED_CACHE_TTL_MS) {
-    return cached.games;
-  }
 
   const url =
     `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
@@ -33,19 +22,12 @@ async function getOwnedGames(fetch, steamid) {
 
   const data = await res.json();
   const games = data.response?.games ?? [];
-  ownedGamesCache.set(steamid, { games, timestamp: Date.now() });
   return games;
 }
 
 // Per game de prijs + hoofdgenre ophalen
 async function getGamePriceAndGenre(fetch, appid) {
   const key = String(appid);
-
-  // simpele cache zodat we niet bij elke reload opnieuw dezelfde appdetails vragen
-  const cached = priceCache.get(key);
-  if (cached && Date.now() - cached.timestamp < PRICE_CACHE_TTL_MS) {
-    return cached.data;
-  }
 
   const url =
     `https://store.steampowered.com/api/appdetails?appids=${appid}` +
@@ -90,7 +72,6 @@ async function getGamePriceAndGenre(fetch, appid) {
     genre: primaryGenre
   };
 
-  priceCache.set(key, { data: result, timestamp: Date.now() });
   return result;
 }
 

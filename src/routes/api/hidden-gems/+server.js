@@ -2,15 +2,7 @@
 import { json } from '@sveltejs/kit';
 import { STEAM_KEY } from '$env/static/private';
 
-const ownedGamesCache = new Map();
-const ratingCache = new Map();
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
 async function getOwnedGames(fetch, steamid) {
-  const cached = ownedGamesCache.get(steamid);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.games;
-  }
 
   const url =
     `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
@@ -29,15 +21,10 @@ async function getOwnedGames(fetch, steamid) {
 
   const data = await res.json();
   const games = data.response?.games ?? [];
-  ownedGamesCache.set(steamid, { games, timestamp: Date.now() });
   return games;
 }
 
 async function getSteamRating(fetch, appid) {
-  const cached = ratingCache.get(appid);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.rating;
-  }
 
   const url =
     `https://store.steampowered.com/appreviews/${appid}` +
@@ -74,7 +61,6 @@ async function getSteamRating(fetch, appid) {
     positiveRatio
   };
 
-  ratingCache.set(appid, { rating, timestamp: Date.now() });
   return rating;
 }
 

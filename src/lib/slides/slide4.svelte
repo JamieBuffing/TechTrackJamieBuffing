@@ -1,6 +1,7 @@
 <script>
   import { browser } from '$app/environment';   // geeft true terug als de app in de browser runt
-  import RadialProgress from '$lib/components/slide4.1.svelte';   // RadialProgress     Hoeveel procent je al gehaald hebt van de achievements
+  import RadialProgress from '$lib/components/slide4.1.svelte'; 
+  // RadialProgress hoeveel procent je al gehaald hebt van de achievements
 
   export let steamId = '';  // Hier komt het gekozen steamid in
 
@@ -49,9 +50,8 @@
 
   async function loadAchievements() {
     if (!steamId || !selectedAppId) return;   // Als er geen steamid is of geen gesecteerd is dan stoppen met de functie
-
     loadingAchievements = true;   // Nu gaan de Achievements eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
-    error = '';   // De error voor de zekerheid maar even legen.
+    achError = '';   // De error voor de zekerheid maar even legen.
     achData = null;    // En om zeker te zijn dat alles netjes blijft zet ik de achievements data ook weer even op NULL
 
     try {   // Probeer de Achievements op te halen uit de api route voor api/achievements/+server.js met het gekregen steamId en AppId
@@ -82,8 +82,8 @@
   }
 
   // Als de steamId veranderd of de browser herlaad of op een andere manier veranderd.
-  $: if (browser && steamId) {
-    loadAchievements();    // Voer deze functie opnieuw uit
+  $: if (browser && steamId && selectedAppId) {
+    loadAchievements();
   }
 
   function onSelectChange(event) {    // Als de dropdown wordt veranderd
