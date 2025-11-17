@@ -11,7 +11,7 @@
 
   async function loadGenres() {   // De functie waarin de genres worden opgehaald
     if (!steamId) {   // Tenzij er geen steamid is want dan moet de gebruiker die eerst nog even kiezen in de eerste slide
-      error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1.';    // Deze tekst wordt dan op de pagina geladen en dat komt uit de let error
+      error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1 om een account te kiezen.';   // Deze tekst wordt dan op de pagina geladen en dat komt uit de let erro
       genres = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de genres array leeg blijft
       return;   // En stop met het uitvoeren van de rest van de functie
     }

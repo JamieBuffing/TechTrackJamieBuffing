@@ -1,7 +1,7 @@
 <!-- src/lib/slides/Slide5.svelte -->
 <script>
-  import { browser } from '$app/environment';
-  import FriendsScatterPlot from '$lib/components/slide5.1.svelte';
+  import { browser } from '$app/environment';   // geeft true terug als de app in de browser runt
+  import FriendsScatterPlot from '$lib/components/slide5.1.svelte';   // FriendsScatterPlot
 
   export let steamId = '';  // Hier komt het gekozen steamid in
 
@@ -10,8 +10,8 @@
   let players = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de players array leeg blijft
   let friendsCount = 0;   // Hier wordt opgeslagen hoeveel vrienden de gebruiker heeft
 
-  async function loadFriendStats() {
-    if (!steamId) {
+  async function loadFriendStats() {    // De functie om de vrienden op te halen
+    if (!steamId) {   // Als er geen steamId is
       error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1.';
       players = [];
       return;   // En stop met het uitvoeren van de rest van de functie
