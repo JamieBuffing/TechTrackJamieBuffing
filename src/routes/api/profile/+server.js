@@ -1,6 +1,6 @@
 // src/routes/api/profile/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_API_KEY } from '$env/static/private';
+import { STEAM_KEY } from '$env/static/private';
 
 export async function GET({ url, fetch }) {
   const steamid = url.searchParams.get('steamid');

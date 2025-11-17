@@ -1,5 +1,4 @@
 <script>
-  // data: [{ appid, name, hours, steamRating: { reviewScore, reviewScoreDesc, totalReviews, positiveRatio }, gemScore }]
   export let data = [];
 
   function coverUrl(appid) {
