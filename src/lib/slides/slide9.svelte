@@ -85,14 +85,14 @@
 
   .hint {
     font-size: 0.85rem;
-    color: #c0c6d2;
+    color: #1b2838;
     max-width: 620px;
   }
 
   .footer {
     margin-top: 0.5rem;
     font-size: 0.85rem;
-    color: #9ca9c6;
+    color: #1b2838;
   }
 
   .error {

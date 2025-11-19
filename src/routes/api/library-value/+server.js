@@ -1,88 +1,15 @@
 // src/routes/api/library-value/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-
-async function getOwnedGames(fetch, steamid) {
-
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=1` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('GetOwnedGames error', res.status, text);
-    throw new Error('Failed to fetch owned games');
-  }
-
-  const data = await res.json();
-  const games = data.response?.games ?? [];
-  return games;
-}
-
-// Per game de prijs + hoofdgenre ophalen
-async function getGamePriceAndGenre(fetch, appid) {
-  const key = String(appid);
-
-  const url =
-    `https://store.steampowered.com/api/appdetails?appids=${appid}` +
-    `&cc=nl&filters=price_overview,genres`;
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.error('appdetails error', appid, res.status);
-    return null;
-  }
-
-  let json;
-  try {
-    json = await res.json();
-  } catch (e) {
-    console.error('appdetails JSON parse error', appid, e);
-    return null;
-  }
-
-  const entry = json[appid];
-  if (!entry?.success || !entry.data) return null;
-
-  const data = entry.data;
-  const price = data.price_overview;
-
-  if (!price || price.final == null) {
-    // waarschijnlijk free-to-play of geen prijsinfo
-    return null;
-  }
-
-  const currency = price.currency || 'EUR';
-  const value = price.final / 100;
-
-  let primaryGenre = 'Overige';
-  if (data.genres && data.genres.length > 0) {
-    primaryGenre = data.genres[0].description || 'Overige';
-  }
-
-  const result = {
-    value,
-    currency,
-    genre: primaryGenre
-  };
-
-  return result;
-}
+import { resolveSteamId, getOwnedGames, getStoreDetails } from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid);
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
     if (!games.length) {
       return json({
@@ -100,11 +27,25 @@ export async function GET({ url, fetch }) {
     const totalOwnedCount = games.length;
     const gameEntries = [];
 
-    // ✅ 100% van de games, één appdetails-call per game
     await Promise.all(
       games.map(async (g) => {
-        const info = await getGamePriceAndGenre(fetch, g.appid);
-        if (!info) return;
+        const details = await getStoreDetails(fetch, g.appid, {
+          includePrice: true,
+          includeGenres: true
+        });
+
+        if (!details) return;
+
+        const price = details.price_overview;
+        if (!price || price.final == null) return;
+
+        const value = price.final / 100;
+        const currency = price.currency || 'EUR';
+
+        let primaryGenre = 'Overige';
+        if (details.genres && details.genres.length > 0) {
+          primaryGenre = details.genres[0].description || 'Overige';
+        }
 
         const minutes = g.playtime_forever || 0;
         const hours = minutes / 60;
@@ -112,9 +53,9 @@ export async function GET({ url, fetch }) {
         gameEntries.push({
           appid: g.appid,
           name: g.name,
-          price: info.value,
-          currency: info.currency,
-          genre: info.genre,
+          price: value,
+          currency,
+          genre: primaryGenre,
           hours: Number(hours.toFixed(1))
         });
       })

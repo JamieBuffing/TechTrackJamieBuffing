@@ -1,11 +1,13 @@
 <script>
   import { browser } from '$app/environment';
   import LibraryValueChart from '$lib/components/slide8.1.svelte';
+  import { getCached, setCached } from '$lib/slideCache.js';
 
   export let steamId = '';  // Hier komt het gekozen steamid in
 
   let loading = false;    // of het grafiek aan het laden is, standaard false
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
+  let summary = null;
   let totalValue = 0;
   let currency = 'EUR';
   let gamesPricedCount = 0;
@@ -13,9 +15,12 @@
   let genres = [];
   let mostExpensive = [];
 
+  const SLIDE_KEY = 'slide8-library-value';
+
   async function loadLibraryValue() {
     if (!steamId) {
       error = 'Geen SteamID geselecteerd.';
+      summary = null;
       return;   // En stop met het uitvoeren van de rest van de functie
     }
 
@@ -150,19 +155,20 @@
 
   .label {
     font-size: 0.85rem;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .value {
     font-size: 1.4rem;
     font-weight: 600;
     margin-top: 0.2rem;
+    color: #66c0f4;
   }
 
   .note {
     margin-top: 0.2rem;
     font-size: 0.8rem;
-    color: #aaa;
+    color: #1b2838;
   }
 
   .section {
@@ -174,7 +180,7 @@
 
   .hint {
     font-size: 0.85rem;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .games-table {
@@ -193,11 +199,11 @@
   .games-table th {
     text-align: left;
     font-weight: 500;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .games-table td {
-    color: #eee;
+    color: #1b2838;
   }
 
   .error {

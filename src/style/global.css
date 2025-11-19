@@ -12,7 +12,7 @@ header{
     color: #FFFFFF;
 }
 main {
-    height: 90vh;
+    max-height: 90vh;
     aspect-ratio: 9 / 18;
     margin: auto;
     background-color: #c7d5e0;
