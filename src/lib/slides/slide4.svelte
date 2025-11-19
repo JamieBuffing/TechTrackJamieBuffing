@@ -16,11 +16,31 @@
   let achError = '';   // Als er een error melding voor de achievements is wordt die hier opgeslagen
   let achData = null;   // Standaard staat hij op NULL maar hier komt de data van de achievements
 
+  // 🔹 Cache:
+  // gamesCache: steamId -> { games, error }
+  // achCache:  `${steamId}:${appid}` -> { achData, achError }
+  const gamesCache = new Map();
+  const achCache = new Map();
+
   async function loadGames() {    // De functie om de games te laden
     if (!steamId) {   // Als er geen steamid is geselecteerd
       error = 'Geen SteamID geselecteerd.';   // Dan deze error
       games = [];   // Leeg voor de zekerheid de array nog even
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache eerst proberen
+    const cached = gamesCache.get(steamId);
+    if (cached) {
+      games = cached.games;
+      error = cached.error;
+      // als er al games zijn en nog geen selectie, stel die dan in
+      if (games.length && !selectedAppId) {
+        selectedAppId = String(games[0].appid);
+        selectedGameName = games[0].name;
+      }
+      loadingGames = false;
+      return;
     }
 
     loadingGames = true;    // De loading statement gaat op true waardoor er wat tekst op de pagina veranderd
@@ -44,25 +64,42 @@
       console.error(e);   // Console log de error code
       error = 'Fout bij het laden van games.';   // En toon deze tekst als error
     } finally {   // Als laatste
+      // ✅ Cache updaten
+      gamesCache.set(steamId, { games, error });
       loadingGames = false;   // Zet de loadingstatement van games weer op false
     }
   }
 
   async function loadAchievements() {
     if (!steamId || !selectedAppId) return;   // Als er geen steamid is of geen gesecteerd is dan stoppen met de functie
-    loadingAchievements = true;   // Nu gaan de Achievements eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
+
+    const key = `${steamId}:${selectedAppId}`;
+
+    // ✅ Achievement-cache check
+    const cached = achCache.get(key);
+    if (cached) {
+      achData = cached.achData;
+      achError = cached.achError;
+      loadingAchievements = false;
+      return;
+    }
+
+    loadingAchievements = true;   // Nu gaan de Achievements eenmaal laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
     achError = '';   // De error voor de zekerheid maar even legen.
     achData = null;    // En om zeker te zijn dat alles netjes blijft zet ik de achievements data ook weer even op NULL
 
-    try {   // Probeer de Achievements op te halen uit de api route voor api/achievements/+server.js met het gekregen steamId en AppId
+    try {   // Probeer de achievements op te halen uit de api route voor api/achievements/+server.js met het gekregen steamId
       const res = await fetch(
-        `/api/achievements?steamid=${steamId}&appid=${selectedAppId}`   // vraag de data op uit de api met de steamid en appid
+        `/api/achievements?steamid=${steamId}&appid=${selectedAppId}`
       );
-      const json = await res.json();    // sla de data op in const json
+      const json = await res.json();
 
-      if (!res.ok) {    // Als er een error is moet die geplaats worden in de let acherror
-        achError = json.error || 'Kon achievements niet laden.';    // En als er geen bruikbare error is dan komt de tekst
-      } else if (json.total === 0) {    // Anders (dus geen error) maar de gebruiker geen achievements voor die game heeft
+      if (!res.ok || json.error) {   // Als er een error is
+        achError = json.error || 'Kon achievements niet laden.';   // en er geen bruikbare error is dan komt de tekst hierachter
+        if (json && json.message) {   // als er een message mee komt
+          achError = json.message;    // dan neem die mee in de error
+        }
+      } else if (json.total === 0) {   // Als er geen achievements zijn
         achError =
           json.message || 'Deze game heeft geen achievements.';   // Dan komt deze tekst
       } else {    // Anders (dus geen error)
@@ -72,6 +109,8 @@
       console.error(e);   // Console log de error code
       achError = 'Fout bij het laden van achievements.';   // en neem de voldende error waarde
     } finally {   // Als laatste
+      // ✅ Achievement-cache updaten
+      achCache.set(key, { achData, achError });
       loadingAchievements = false;    // Zet de achievements loadingstate weer op false
     }
   }
@@ -88,20 +127,13 @@
 
   function onSelectChange(event) {    // Als de dropdown wordt veranderd
     const appid = event.target.value; // Sla de nieuwe id die nu is geselecteerd
-    selectedAppId = appid;    // en vul hem in in de eerder aangemaakte let
-    const g = games.find((game) => String(game.appid) === appid);   // EN probeer dat ook voor de naam
-    selectedGameName = g ? g.name : '';
+    selectedAppId = appid;   // En vul de geselecteerde id met de id die nu boven staat
+    const game = games.find((g) => String(g.appid) === String(appid));   // Check welke game daar bij hoort
+    selectedGameName = game ? game.name : '';    // En vul de geselecteerde naam met de naam die daar bij hoort
+    loadAchievements();   // En laad de achievements opnieuw
   }
-
-
-  // Split alle data of je ze wel gehaald hebt of niet
-  $: unlocked = achData
-    ? achData.achievements.filter((a) => a.achieved)    // Wel gehaald
-    : [];
-  $: locked = achData
-    ? achData.achievements.filter((a) => !a.achieved)   // Niet gehaald "!"
-    : [];
 </script>
+
 
 <div class="slide4">
   <h2>Achievement progress</h2>

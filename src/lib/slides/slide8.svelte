@@ -1,13 +1,11 @@
 <script>
   import { browser } from '$app/environment';
   import LibraryValueChart from '$lib/components/slide8.1.svelte';
-  import { getCached, setCached } from '$lib/slideCache.js';
 
   export let steamId = '';  // Hier komt het gekozen steamid in
 
   let loading = false;    // of het grafiek aan het laden is, standaard false
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
-  let summary = null;
   let totalValue = 0;
   let currency = 'EUR';
   let gamesPricedCount = 0;
@@ -15,13 +13,28 @@
   let genres = [];
   let mostExpensive = [];
 
-  const SLIDE_KEY = 'slide8-library-value';
+  // 🔹 Cache per steamId:
+  // { totalValue, currency, gamesPricedCount, totalOwnedCount, genres, mostExpensive, error }
+  const cache = new Map();
 
   async function loadLibraryValue() {
     if (!steamId) {
       error = 'Geen SteamID geselecteerd.';
-      summary = null;
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache check
+    const cached = cache.get(steamId);
+    if (cached) {
+      totalValue = cached.totalValue;
+      currency = cached.currency;
+      gamesPricedCount = cached.gamesPricedCount;
+      totalOwnedCount = cached.totalOwnedCount;
+      genres = cached.genres;
+      mostExpensive = cached.mostExpensive;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -36,8 +49,8 @@
       const res = await fetch(`/api/library-value?steamid=${steamId}`);
       const json = await res.json();
 
-      if (!res.ok) {    // Als er een error is moet die geplaats worden in de let error
-        error = json.error || 'Kon library waarde niet laden.';    // En als er geen bruikbare error is dan komt de tekst
+      if (!res.ok || json.error) {
+        error = json.error || 'Kon library waarde niet laden.';
       } else {    // Anders (dus geen error)
         if (json.message && (!json.genres || !json.genres.length)) {
           error = json.message;
@@ -53,6 +66,16 @@
       console.error(e);
       error = 'Netwerkfout bij het laden van library waarde.';
     } finally {
+      // ✅ Cache updaten
+      cache.set(steamId, {
+        totalValue,
+        currency,
+        gamesPricedCount,
+        totalOwnedCount,
+        genres,
+        mostExpensive,
+        error
+      });
       loading = false;
     }
   }
