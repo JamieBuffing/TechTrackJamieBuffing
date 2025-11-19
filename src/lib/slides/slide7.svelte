@@ -8,11 +8,23 @@
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
   let gems = [];
 
+  // 🔹 Cache per steamId: { gems, error }
+  const cache = new Map();
+
   async function loadHiddenGems() {
     if (!steamId) {
       error = 'Geen SteamID geselecteerd.';
       gems = [];
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache check
+    const cached = cache.get(steamId);
+    if (cached) {
+      gems = cached.gems;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -35,6 +47,8 @@
       console.error(e);
       error = 'Netwerkfout bij het laden van hidden gems.';
     } finally {
+      // ✅ Cache updaten
+      cache.set(steamId, { gems, error });
       loading = false;
     }
   }
