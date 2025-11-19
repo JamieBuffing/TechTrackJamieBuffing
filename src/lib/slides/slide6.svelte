@@ -17,8 +17,25 @@
 
   let svgEl;
 
+  // 🔹 Cache
+  const gamesCache = new Map(); // steamId -> { games, error }
+  const achCache = new Map();   // `${steamId}:${appid}` -> { achData, achError }
+
   async function loadTopGames() {
     if (!browser || !steamId) return;
+
+    // ✅ Cache check
+    const cached = gamesCache.get(steamId);
+    if (cached) {
+      games = cached.games;
+      error = cached.error;
+      if (games.length && !selectedAppId) {
+        selectedAppId = String(games[0].appid);
+        selectedGameName = games[0].name;
+      }
+      loadingGames = false;
+      return;
+    }
 
     loadingGames = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
     error = '';   // De error voor de zekerheid maar even legen.
@@ -30,27 +47,36 @@
 
       if (!res.ok || json.error) {
         error = json.error || 'Kon games niet laden.';
-        return;   // En stop met het uitvoeren van de rest van de functie
+      } else {
+        games = json.games || json.topGames || [];
+        if (games.length && !selectedAppId) {
+          selectedAppId = String(games[0].appid);
+          selectedGameName = games[0].name;
+        }
       }
-
-      games = json.topGames || [];
-
-      // automatisch de eerste game kiezen
-      if (games.length > 0) {
-        selectedAppId = String(games[0].appid);
-        selectedGameName = games[0].name;
-        await loadAchievements();
-      }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       error = 'Netwerkfout bij het laden van games.';
     } finally {
+      // ✅ Cache updaten
+      gamesCache.set(steamId, { games, error });
       loadingGames = false;
     }
   }
 
   async function loadAchievements() {
     if (!browser || !steamId || !selectedAppId) return;
+
+    const key = `${steamId}:${selectedAppId}`;
+
+    // ✅ Achievement cache check
+    const cached = achCache.get(key);
+    if (cached) {
+      achData = cached.achData;
+      achError = cached.achError;
+      loadingAchievements = false;
+      return;
+    }
 
     loadingAchievements = true;
     achError = '';
@@ -77,21 +103,14 @@
       if (game) {   // Als game bestaat dan
         selectedGameName = game.name; // Dan moet de geselecteerde naam de naam van de game zijn
       }
-
-      if (browser) {
-        renderChart();
-      }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       achError = 'Netwerkfout bij het laden van achievements.';
     } finally {
+      // ✅ Cache updaten
+      achCache.set(key, { achData, achError });
       loadingAchievements = false;
     }
-  }
-
-  function onGameChange(event) {
-    selectedAppId = event.target.value;
-    loadAchievements();
   }
 
   // Als de steamId veranderd of de browser herlaad of op een andere manier veranderd.

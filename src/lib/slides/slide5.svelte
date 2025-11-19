@@ -10,11 +10,25 @@
   let players = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de players array leeg blijft
   let friendsCount = 0;   // Hier wordt opgeslagen hoeveel vrienden de gebruiker heeft
 
+  // 🔹 Cache per steamId: { players, friendsCount, error }
+  const cache = new Map();
+
   async function loadFriendStats() {    // De functie om de vrienden op te halen
     if (!steamId) {   // Als er geen steamId is
       error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1.';
       players = [];
+      friendsCount = 0;
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache check
+    const cached = cache.get(steamId);
+    if (cached) {
+      players = cached.players;
+      friendsCount = cached.friendsCount;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de vrienden eenmaal laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -25,16 +39,22 @@
       const res = await fetch(`/api/friends-stats?steamid=${steamId}`);
       const json = await res.json();
 
-      if (!res.ok) {    // Als er een error is moet die geplaats worden in de let error
+      if (!res.ok || json.error) {    // Als er een error is moet die geplaats worden in de let error
         error = json.error || 'Kon vriendstatistieken niet laden.';    // En als er geen bruikbare error is dan komt de tekst
+        players = [];
+        friendsCount = 0;
       } else {    // Anders (dus geen error)
         players = json.players || [];   // Vul de array met de vrienden die uit de api fetch zijn gekomen
-        friendsCount = json.friendsCount || 0;   // En vul in hoeveel vrienden je hebt in de eerder gemaakte let friendsCount
+        friendsCount = json.friendsCount ?? players.length ?? 0;
       }
     } catch (e) {
       console.error(e);
       error = 'Netwerkfout bij het laden van vriendstatistieken.';
+      players = [];
+      friendsCount = 0;
     } finally {
+      // ✅ Cache updaten
+      cache.set(steamId, { players, friendsCount, error });
       loading = false;
     }
   }

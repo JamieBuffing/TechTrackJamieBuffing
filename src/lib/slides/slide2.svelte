@@ -9,11 +9,24 @@
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
   let topGames = [];    // De plek waar de topGames worden opgeslagen die uit de functie loadTopGames() komen
 
+  // 🔹 Cache per steamId: { topGames, error }
+  const cache = new Map();
+
   async function loadTopGames() {   // In deze functie worden alle games opgehaald
     if (!steamId) {   // Tenzij er geen steamid is want dan moet de gebruiker die eerst nog even kiezen in de eerste slide
-      error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1.';    // Deze tekst wordt dan op de pagina geladen en dat komt uit de let error
+      error =
+        'Geen SteamID geselecteerd. Ga eerst naar slide 1 om een account te kiezen, deze tekst wordt dan op de pagina geladen en dat komt uit de let error';
       topGames = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de topGames array leeg blijft
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Probeer eerst cache
+    const cached = cache.get(steamId);
+    if (cached) {
+      topGames = cached.topGames;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -22,7 +35,7 @@
 
     try {   // Probeer de games op te halen uit de api route voor api/top-games/+server.js met het gekregen steamId
       const res = await fetch(`/api/top-games?steamid=${steamId}`);
-      const json = await res.json();  
+      const json = await res.json();
 
       if (!res.ok) {    // Als er een error is moet die geplaats worden in de let error
         error = json.error || 'Kon top games niet laden.';    // En als er geen bruikbare error is dan komt de tekst
@@ -31,8 +44,11 @@
       }
     } catch (e) {   // Als de try niet is gelukt
       console.error(e);   // Toon de error in de console
-      error = 'Fout bij het laden van top games.';   // En de let error wordt gevuld met de tekst "Fout bij het laden van top games."
+      error =
+        'Fout bij het laden van top games.';   // En de let error wordt gevuld met de tekst "Fout bij het laden van top games."
     } finally {   // En als laatst dus als alles is gelukt dan moet de loading statement weer op false
+      // ✅ Resultaat in cache stoppen (ook als er een error is, dan cachen we die ook)
+      cache.set(steamId, { topGames, error });
       loading = false;
     }
   }
@@ -42,6 +58,7 @@
     loadTopGames();   // Dan loadTopGames() opnieuw laden
   }
 </script>
+
 
 <div class="slide2">
   <h2>Top 5 meest gespeelde games</h2>
