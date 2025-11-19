@@ -1,67 +1,15 @@
 // src/routes/api/genres/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-async function getOwnedGames(fetch, steamid) {
-
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=1` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('GetOwnedGames error (genres)', res.status, text);
-    throw new Error('Failed to fetch owned games');
-  }
-
-  const data = await res.json();
-  const games = data.response?.games ?? [];
-  return games;
-}
-
-async function getPrimaryGenre(fetch, appid) {
-  const url =
-    `https://store.steampowered.com/api/appdetails?appids=${appid}` +
-    `&cc=nl&filters=genres`;
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.error('appdetails error (genres)', appid, res.status);
-    return null;
-  }
-
-  let json;
-  try {
-    json = await res.json();
-  } catch (e) {
-    console.error('appdetails JSON parse error (genres)', appid, e);
-    return null;
-  }
-
-  const entry = json[appid];
-  if (!entry?.success || !entry.data) return null;
-
-  const data = entry.data;
-  const genres = data.genres || [];
-  if (!genres.length) return null;
-
-  const primary = genres[0].description || 'Overige';
-  return primary;
-}
+import { resolveSteamId, getOwnedGames, getStoreDetails } from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid);
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
     if (!games.length) {
       return json({
@@ -71,7 +19,6 @@ export async function GET({ url, fetch }) {
       });
     }
 
-    // We gebruiken alle games met speeltijd > 0
     const played = games.filter((g) => (g.playtime_forever || 0) > 0);
 
     if (!played.length) {
@@ -90,14 +37,19 @@ export async function GET({ url, fetch }) {
 
     await Promise.all(
       played.map(async (g) => {
-        const primaryGenre = await getPrimaryGenre(fetch, g.appid);
-        const genre = primaryGenre || 'Overige';
+        const details = await getStoreDetails(fetch, g.appid, {
+          includePrice: false,
+          includeGenres: true
+        });
+
+        const primaryGenre =
+          details?.genres?.[0]?.description || 'Overige';
 
         const minutes = g.playtime_forever || 0;
         const hours = minutes / 60;
 
-        const prev = genreMap.get(genre) || { hours: 0, games: [] };
-        genreMap.set(genre, {
+        const prev = genreMap.get(primaryGenre) || { hours: 0, games: [] };
+        genreMap.set(primaryGenre, {
           hours: prev.hours + hours,
           games: [
             ...prev.games,
@@ -127,7 +79,7 @@ export async function GET({ url, fetch }) {
         ? Number(((genreHours / totalHours) * 100).toFixed(1))
         : 0;
 
-      const games = info.games
+      const gamesList = info.games
         .sort((a, b) => b.hours - a.hours)
         .slice(0, 15)
         .map((g) => ({
@@ -139,7 +91,7 @@ export async function GET({ url, fetch }) {
         genre,
         hours: Number(genreHours.toFixed(1)),
         percentage,
-        games
+        games: gamesList
       };
     });
 

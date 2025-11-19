@@ -57,6 +57,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    height: 100%;
   }
 
   .gem-card {
@@ -89,6 +90,7 @@
   h3 {
     margin: 0;
     font-size: 1rem;
+    color: #66c0f4;    
   }
 
   .meta {

@@ -79,16 +79,17 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-height: max-content;
   }
 
   .intro {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .muted {
     font-size: 0.85rem;
-    color: #aaa;
+    color: #1b2838;
   }
 
   .error {

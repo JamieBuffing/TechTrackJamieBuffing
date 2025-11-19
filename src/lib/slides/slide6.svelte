@@ -155,7 +155,8 @@
 
     const g = svg
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+      .attr('color', '#c7d5e0');
 
     const x = d3
       .scaleTime()
@@ -193,7 +194,8 @@
       .attr('class', 'chart-title')
       .attr('x', 0)
       .attr('y', -12)
-      .text(`Unlocked achievements voor ${selectedGameName}`);
+      .attr('fill', '#c7d5e0')
+      .text(selectedGameName);
 
     // de cirkels
     const nodes = g
@@ -312,7 +314,7 @@ ${d.description || ''}`;
 
   select {
     background: #1b2838;
-    color: #fff;
+    color: #c7d5e0;
     border-radius: 0.4rem;
     border: 1px solid #2a475e;
     padding: 0.25rem 0.5rem;
@@ -342,6 +344,7 @@ ${d.description || ''}`;
   .summary-value {
     font-size: 1.2rem;
     font-weight: 600;
+    color: #c7d5e0;
   }
 
   .viz-wrapper {
@@ -353,37 +356,14 @@ ${d.description || ''}`;
 
   .hint {
     font-size: 0.85rem;
-    color: #ccc;
+    color: #c7d5e0;
     margin-bottom: 0.5rem;
   }
 
   .achievements-chart {
     width: 100%;
     display: block;
-  }
-
-  .x-axis text,
-  .y-axis text {
-    fill: #ddd;
-    font-size: 0.7rem;
-  }
-
-  .x-axis line,
-  .x-axis path,
-  .y-axis line,
-  .y-axis path {
-    stroke: #444;
-  }
-
-  .chart-title {
-    fill: #f5f5f5;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .empty-text {
-    fill: #aaa;
-    font-size: 0.9rem;
+    color: #c7d5e0;
   }
 
   .error {

@@ -1,30 +1,72 @@
 <!-- src/lib/slides/Slide1.svelte -->
 <script>
   import { createEventDispatcher } from 'svelte';   // svelte component 
-  import { goto } from '$app/navigation';   // svelte functie om later naar een ander bestand of route te wijzen
-  import { presetSteamIds } from '$lib/presetSteamIds.js';    // Dit zijn de presets id's voor als je niet wilt inloggen
+  import { goto } from '$app/navigation';          // svelte functie om later naar een ander bestand of route te wijzen
+  import { presetSteamIds } from '$lib/presetSteamIds.js'; // Dit zijn de presets id's voor als je niet wilt inloggen
 
   export let steamId = '';  // Hier komt het gekozen steamid in
 
-  const dispatch = createEventDispatcher(); //
+  const dispatch = createEventDispatcher();
+
+  let loadingProfile = false;  // bezig met checken van profiel?
+  let profileError = '';       // melding als profiel niet public is of niet geladen kan worden
 
   function selectPreset(id) {
-    steamId = id;   // de eerder aangemaakt let wordt ingevuld met id dat komt uit het aanroepen van de functie
+    steamId = id;          // de eerder aangemaakt let wordt ingevuld met id dat komt uit het aanroepen van de functie
+    profileError = '';     // oude foutmelding opruimen bij nieuw account
   }
 
   function loginWithSteam() {
-    goto('/auth/steam');    // de route om in te loggen
+    goto('/auth/steam');   // de route om in te loggen
   }
 
   function logout() {
-    steamId = '';   // dit leegt de variable weer
-    goto('/');    // URL opschonen / Home pagina herladen
+    steamId = '';          // dit leegt de variable weer
+    profileError = '';     // foutmeldingen opruimen
+    goto('/');             // URL opschonen / Home pagina herladen
   }
 
+  // Controleer of het profiel public is, en ga dan pas door
+  async function startStory() {
+    if (!steamId || loadingProfile) return;
 
-  function startStory() {
-    if (!steamId) return;
-    dispatch('start'); // parent zet dan activeSlide = 1
+    loadingProfile = true;
+    profileError = '';
+
+    try {
+      const res = await fetch(`/api/profile?steamid=${steamId}`);
+
+      if (!res.ok) {
+        profileError = 'Kon je Steam-profiel niet laden. Probeer het later opnieuw.';
+        return;
+      }
+
+      const data = await res.json();
+      const player = data?.player;
+      const visibility = player?.communityvisibilitystate;
+      console.log(visibility)
+
+      // Steam visibility:
+      // 1 = Private, 2 = Friends Only, 3 = Public
+      if (visibility !== 3) {
+        if (visibility === 1 || visibility === 2) {
+          profileError =
+            'Je Steam-profiel is niet openbaar. Zet je profiel in Steam op "Public" om verder te gaan.';
+        } else {
+          profileError =
+            'Je Steam-profiel is niet (volledig) zichtbaar. Controleer je privacy-instellingen.';
+        }
+        return; // NIET door naar de volgende slide
+      }
+
+      // Alles ok → parent zet dan activeSlide = 1
+      dispatch('start');
+    } catch (err) {
+      console.error(err);
+      profileError = 'Er ging iets mis bij het controleren van je profiel.';
+    } finally {
+      loadingProfile = false;
+    }
   }
 </script>
 
@@ -37,9 +79,8 @@
     door te gaan.
   </p>
 
-  {#if steamId}   
-  <!-- If erlse van svelte -->
-  <!-- Steam id aanwezig =  Welkom met loguit -->
+  {#if steamId}
+    <!-- Steam id aanwezig =  Welkom met logout -->
     <div class="panel login-panel">
       <h2>Welkom!</h2>
       <p class="hint">
@@ -50,7 +91,7 @@
       </button>
     </div>
   {:else}
-  <!-- Geen steam id = login met steamknop -->
+    <!-- Geen steam id = login met steamknop -->
     <div class="panel login-panel">
       <h2>Login met Steam</h2>
       <button class="btn steam" type="button" on:click={loginWithSteam}>
@@ -67,7 +108,7 @@
 
     <div class="preset-list">
       {#each presetSteamIds as p}
-      <!-- For eacht van svlete -->
+        <!-- For each van svelte -->
         <button
           type="button"
           class="preset {steamId === p.id ? 'active' : ''}"
@@ -84,13 +125,19 @@
       type="button"
       class="btn start"
       on:click={startStory}
-      disabled={!steamId}
+      disabled={!steamId || loadingProfile}
     >
-      Start je story
+      {#if loadingProfile}
+        Profiel controleren…
+      {:else}
+        Start je story
+      {/if}
     </button>
-    <!-- Als er geen steamId is -->
+
     {#if !steamId}
       <p class="hint">Kies eerst een account of login met Steam.</p>
+    {:else if profileError}
+      <p class="hint error">{profileError}</p>
     {/if}
   </div>
 </div>
@@ -180,5 +227,9 @@
   .hint {
     font-size: 0.85rem;
     color: #888;
+  }
+
+  .hint.error {
+    color: #ff6b6b;
   }
 </style>
