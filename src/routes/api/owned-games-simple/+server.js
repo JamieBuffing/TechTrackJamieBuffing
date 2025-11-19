@@ -1,35 +1,15 @@
 // src/routes/api/owned-games-simple/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-async function getOwnedGames(fetch, steamid) {
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=1` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('GetOwnedGames error (owned-games-simple)', res.status, text);
-    throw new Error('Failed to fetch owned games');
-  }
-
-  const data = await res.json();
-  return data.response?.games ?? [];
-}
+import { resolveSteamId, getOwnedGames } from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid);
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
     if (!games.length) {
       return json({

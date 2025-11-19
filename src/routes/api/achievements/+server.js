@@ -1,53 +1,19 @@
 // src/routes/api/achievements/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-async function getSchemaForGame(fetch, appid) {
-  const url =
-    `https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/` +
-    `?key=${STEAM_KEY}&appid=${appid}`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.error('GetSchemaForGame error', appid, res.status);
-    throw new Error('Failed to fetch schema');
-  }
-
-  const data = await res.json();
-  const game = data.game;
-  const achievements =
-    game?.availableGameStats?.achievements || [];
-
-  return achievements;
-}
-
-async function getPlayerAchievements(fetch, steamid, appid) {
-  const url =
-    `https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/` +
-    `?key=${STEAM_KEY}&steamid=${steamid}&appid=${appid}`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.error('GetPlayerAchievements error', steamid, appid, res.status);
-    // sommige games hebben geen stats → gewoon lege lijst teruggeven
-    return [];
-  }
-
-  const data = await res.json();
-  const achievements = data.playerstats?.achievements || [];
-  return achievements;
-}
+import {
+  resolveSteamId,
+  getSchemaForGame,
+  getPlayerAchievements
+} from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     const appid = url.searchParams.get('appid');
 
     if (!steamid || !appid) {
       return json(
-        { error: 'Missing steamid or appid' },
+        { error: 'Missing steamid or appid (and no DEFAULT_STEAM_ID set)' },
         { status: 400 }
       );
     }
@@ -69,9 +35,7 @@ export async function GET({ url, fetch }) {
       });
     }
 
-    const playerMap = new Map(
-      player.map((a) => [a.apiname, a])
-    );
+    const playerMap = new Map(player.map((a) => [a.apiname, a]));
 
     const combined = schema.map((s) => {
       const p = playerMap.get(s.name);

@@ -53,12 +53,11 @@
     const r = d3
       .scaleSqrt()
       .domain([0, maxRecent || 1])
-      .range([4, 18]);
+      .range([8, 22]);
 
     const root = svg
       .attr('viewBox', `0 0 ${width} ${height}`)
-      .attr('width', width)
-      .attr('height', height);
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     const g = root
       .append('g')
@@ -67,13 +66,14 @@
     // assen
     const xAxis = d3.axisBottom(x).ticks(6);
     const yAxis = d3.axisLeft(y).ticks(6);
-
+    
     g.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
       .call(xAxis)
       .append('text')
       .attr('x', innerWidth / 2)
       .attr('y', 32)
+      .attr('font-size', 20)
       .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
       .text('Aantal games');
@@ -84,6 +84,7 @@
       .attr('transform', 'rotate(-90)')
       .attr('x', -innerHeight / 2)
       .attr('y', -40)
+      .attr('font-size', 20)
       .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
       .text('Totale uren');
@@ -99,12 +100,13 @@
       .attr('r', (d) => r(d.recentHours))
       .attr('fill', (d, i) => d.isSelf ? '#ffd166' : color(i))
       .attr('opacity', 0.9)
-      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : 'none'))
+      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#88c9ff'))
       .attr('stroke-width', (d) => (d.isSelf ? 2 : 0));
 
     // tooltips via <title>
     points
       .append('title')
+      .attr('font-size', 15)
       .text(
         (d) =>
           `${d.personaname}\nGames: ${d.totalGames}\nTotale uren: ${d.totalHours}\nRecent: ${d.recentHours} u`
@@ -131,7 +133,7 @@
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('r', 6)
-        .attr('fill', color(item.type))
+        .attr('fill', item.type === 'self' ? '#ffd166' : '')
         .attr('stroke', item.type === 'self' ? '#ffffff' : 'none')
         .attr('stroke-width', item.type === 'self' ? 2 : 0);
 
@@ -139,7 +141,7 @@
         .append('text')
         .attr('x', 10)
         .attr('y', 4)
-        .attr('font-size', 11)
+        .attr('font-size', 20)
         .text(item.label);
     });
 
@@ -156,4 +158,5 @@
   }
 </script>
 
-<svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden"></svg>
+<!-- <svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden"></svg> -->
+<svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden" style="width: 100%; height: auto; display: block;"></svg>
