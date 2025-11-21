@@ -1,6 +1,15 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+
+  let d3Promise;
+
+  const loadD3 = () => {
+    if (!d3Promise) {
+      d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+    }
+
+    return d3Promise;
+  };
 
   // data: [{ steamid, personaname, avatar, totalGames, totalHours, recentHours, isSelf }]
   export let data = [];
@@ -12,8 +21,10 @@
   let svgEl;
   let cleanup = () => {};
 
-  function draw() {
+  async function draw() {
     if (!svgEl || !data || data.length === 0) return;
+
+    const d3 = await loadD3();
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
@@ -38,12 +49,12 @@
       .range([innerHeight, 0]);
 
     const color = d3
-    .scaleOrdinal()
-    .range([
-      '#171a21',
-      '#1b2838',
-      '#2a475e'
-    ]);
+      .scaleOrdinal()
+      .range([
+        '#171a21',
+        '#1b2838',
+        '#2a475e'
+      ]);
     
     const r = d3
       .scaleSqrt()
@@ -150,8 +161,10 @@
     };
   }
 
-  onMount(draw);
-  onDestroy(() => cleanup());
+  onMount(() => {
+    draw();
+    return () => cleanup();
+  });
 
   $: if (svgEl && data) {
     draw();
