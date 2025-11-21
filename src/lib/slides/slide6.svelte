@@ -1,7 +1,16 @@
 <script>
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
-  import * as d3 from 'd3';
+
+  let d3Promise;
+
+  const loadD3 = () => {
+    if (!d3Promise) {
+      d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+    }
+
+    return d3Promise;
+  };
 
   export let steamId = '';
 
@@ -89,7 +98,7 @@
       achError = cached.achError;
 
       if (browser) {
-        renderChart();
+        await renderChart();
       }
 
       return;
@@ -151,6 +160,10 @@
     if (steamId) {
       loadTopGames();
     }
+
+    if (browser) {
+      loadD3();
+    }
   });
 
   // Herteken chart wanneer data verandert
@@ -158,114 +171,155 @@
     renderChart();
   }
 
-  function renderChart() {
-    if (!browser || !svgEl || !achData) return;
+async function renderChart() {
+  if (!browser || !svgEl || !achData) return;
 
-    const unlocked = achData.achievements
-      .filter((a) => a.achieved && a.unlocktime)
-      .map((a) => ({
-        ...a,
-        date: new Date(a.unlocktime * 1000)
-      }))
-      .sort((a, b) => a.date - b.date);
+  const d3 = await loadD3();
 
-    const container = svgEl.parentElement;
-    const margin = { top: 40, right: 40, bottom: 40, left: 150 };
-    const fullWidth = container?.clientWidth || 900;
-    const width = fullWidth - margin.left - margin.right;
-    const height = Math.max(220, unlocked.length * 24);
+  const unlocked = achData.achievements
+    .filter((a) => a.achieved && a.unlocktime)
+    .map((a) => ({
+      ...a,
+      date: new Date(a.unlocktime * 1000)
+    }))
+    .sort((a, b) => a.date - b.date);
 
-    const svg = d3
-      .select(svgEl)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom);
+  const container = svgEl.parentElement;
+  const margin = { top: 40, right: 40, bottom: 40, left: 30 };
+  const fullWidth = container?.clientWidth || 900;
+  const width = fullWidth - margin.left - margin.right;
+  const height = Math.max(220, unlocked.length * 24);
 
-    svg.selectAll('*').remove();
+  const svg = d3
+    .select(svgEl)
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom);
 
-    if (!unlocked.length) {
-      const gEmpty = svg
-        .append('g')
-        .attr(
-          'transform',
-          `translate(${margin.left},${margin.top + height / 2})`
-        );
+  svg.selectAll('*').remove();
 
-      gEmpty
-        .append('text')
-        .attr('class', 'empty-text')
-        .text('Geen achievements met een unlock-datum gevonden.')
-        .attr('x', 0)
-        .attr('y', 0);
-
-      return;
-    }
-
-    const g = svg
+  if (!unlocked.length) {
+    const gEmpty = svg
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+      .attr(
+        'transform',
+        `translate(${margin.left},${margin.top + height / 2})`
+      );
 
-    const x = d3
-      .scaleTime()
-      .domain(d3.extent(unlocked, (d) => d.date))
-      .range([0, width])
-      .nice();
-
-    const y = d3
-      .scaleBand()
-      .domain(unlocked.map((d) => d.displayName))
-      .range([0, height])
-      .padding(0.2);
-
-    const color = d3
-      .scaleSequential(d3.interpolateCool)
-      .domain(d3.extent(unlocked, (d) => d.date));
-
-    const xAxis = d3.axisBottom(x).ticks(5);
-    const yAxis = d3.axisLeft(y).tickSize(0);
-
-    g.append('g')
-      .attr('class', 'x-axis')
-      .attr('transform', `translate(0,${height})`)
-      .call(xAxis);
-
-    g.append('g')
-      .attr('class', 'y-axis')
-      .call(yAxis)
-      .selectAll('text')
-      .attr('class', 'y-label');
-
-    g.append('text')
-      .attr('class', 'chart-title')
+    gEmpty
+      .append('text')
+      .attr('class', 'empty-text')
+      .text('Geen achievements met een unlock-datum gevonden.')
       .attr('x', 0)
-      .attr('y', -12)
-      .text(`Unlocked achievements voor ${selectedGameName}`);
+      .attr('y', 0);
 
-    const nodes = g
-      .selectAll('.ach-node')
-      .data(unlocked, (d) => d.apiName);
+    return;
+  }
 
-    const nodesEnter = nodes
-      .enter()
-      .append('circle')
-      .attr('class', 'ach-node')
-      .attr('cx', (d) => x(d.date))
-      .attr('cy', (d) => y(d.displayName) + y.bandwidth() / 2)
-      .attr('r', 0)
-      .style('fill', (d) => color(d.date))
-      .style('opacity', 0.9);
+  const g = svg
+    .append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    nodesEnter
-      .transition()
-      .duration(600)
-      .attr('r', Math.min(10, y.bandwidth() / 2));
+  const x = d3
+    .scaleTime()
+    .domain(d3.extent(unlocked, (d) => d.date))
+    .range([0, width])
+    .nice();
 
-    nodesEnter.append('title').text((d) => {
-      const dateStr = d.date.toLocaleDateString();
-      return `${d.displayName}
+  const y = d3
+    .scaleBand()
+    .domain(unlocked.map((d) => d.displayName))
+    .range([0, height])
+    .padding(0.2);
+
+  const color = d3
+    .scaleSequential(d3.interpolateCool)
+    .domain(d3.extent(unlocked, (d) => d.date));
+
+  const xAxis = d3.axisBottom(x).ticks(5);
+
+  // X-as onderaan
+  g.append('g')
+    .attr('class', 'x-axis')
+    .attr('transform', `translate(0,${height})`)
+    .call(xAxis)
+    .selectAll('text')
+    .attr('color', '#c7d5e0');
+
+  // Y-as wordt alleen gebruikt voor de posities, niet voor tekst
+  const yAxis = d3.axisLeft(y).tickSize(0);
+
+  g.append('g')
+    .attr('class', 'y-axis')
+    .call(yAxis)
+    .selectAll('text')
+    .remove(); // geen tekstlabels tonen
+
+  g.append('text')
+    .attr('class', 'chart-title')
+    .attr('x', 0)
+    .attr('y', -12)
+    .attr('fill', '#c7d5e0')
+    .text(`Unlocked achievements voor ${selectedGameName}`);
+
+  // ---- GAME ICON (fallback) ----
+  // Probeer game opzoeken + Steam icon URL bouwen op basis van img_icon_url (standaard bij GetOwnedGames)
+  let gameIconUrl = null;
+  const game = games.find((g) => String(g.appid) === String(selectedAppId));
+  if (game?.img_icon_url) {
+    gameIconUrl = `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
+  }
+
+  // ---- ACHIEVEMENT ICONS ALS Y-LABEL ----
+  const iconSize = Math.min(24, y.bandwidth());
+
+  const iconGroup = g
+    .selectAll('.ach-icon')
+    .data(unlocked, (d) => d.apiName);
+
+  const iconEnter = iconGroup
+    .enter()
+    .append('image')
+    .attr('class', 'ach-icon')
+    // achievement-icoon, anders game-icoon als fallback
+    .attr('href', (d) => d.icon || gameIconUrl || '')
+    .attr('x', -iconSize - 8) // links van de y=0 lijn
+    .attr('y', (d) => y(d.displayName) + (y.bandwidth() - iconSize) / 2)
+    .attr('width', iconSize)
+    .attr('height', iconSize);
+
+  // Tooltip op het icoontje met de NAAM van de achievement
+  iconEnter
+    .append('title')
+    .text((d) => d.displayName);
+
+  // ---- ACHIEVEMENT NODES (blijven zoals je had) ----
+  const nodes = g
+    .selectAll('.ach-node')
+    .data(unlocked, (d) => d.apiName);
+
+  const nodesEnter = nodes
+    .enter()
+    .append('circle')
+    .attr('class', 'ach-node')
+    .attr('cx', (d) => x(d.date))
+    .attr('cy', (d) => y(d.displayName) + y.bandwidth() / 2)
+    .attr('r', 0)
+    .attr('fill', (d) => color(d.date))
+    .attr('opacity', 0.9);
+
+  nodesEnter
+    .transition()
+    .duration(600)
+    .attr('r', Math.min(10, y.bandwidth() / 2));
+
+  // Tooltip van de bolletjes: onveranderd
+  nodesEnter.append('title').text((d) => {
+    const dateStr = d.date.toLocaleDateString();
+    return `${d.displayName}
 Unlocked: ${dateStr}
 ${d.description || ''}`;
-    });
-  }
+  });
+}
 </script>
 
 <div class="slide6">
@@ -398,34 +452,6 @@ ${d.description || ''}`;
   svg {
     width: 100%;
     max-width: 100%;
-  }
-
-  .x-axis text,
-  .y-axis text {
-    fill: #c7d5e0;
-    font-size: 0.75rem;
-  }
-
-  .x-axis line,
-  .y-axis line,
-  .x-axis path,
-  .y-axis path {
-    stroke: #1b2838;
-  }
-
-  .y-label {
-    text-anchor: start;
-  }
-
-  .chart-title {
-    fill: #c7d5e0;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .empty-text {
-    fill: #c7d5e0;
-    font-size: 0.9rem;
   }
 
   .error {

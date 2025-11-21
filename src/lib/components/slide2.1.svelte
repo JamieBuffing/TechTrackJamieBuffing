@@ -1,6 +1,15 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';    // Importeer de functies die svelte gebruikt
-  import * as d3 from 'd3';   // Importeer d3
+  import { onMount } from 'svelte';    // Importeer de functies die svelte gebruikt
+
+  let d3Promise;
+
+  const loadD3 = () => {
+    if (!d3Promise) {
+      d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+    }
+
+    return d3Promise;
+  };
 
   export let data = [];   // Sla hier de data op en exporteer deze zodat het zichtbaar is voor andere bestanden
 
@@ -13,8 +22,10 @@
   let svgEl;
   let cleanup = () => {};
 
-  function draw() {
+  async function draw() {
     if (!svgEl) return;
+
+    const d3 = await loadD3();
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
@@ -73,8 +84,10 @@
     };
   }
 
-  onMount(draw);
-  onDestroy(() => cleanup());
+  onMount(() => {
+    draw();
+    return () => cleanup();
+  });
 
   // redraw bij wijzigingen in props
   $: if (svgEl) {
