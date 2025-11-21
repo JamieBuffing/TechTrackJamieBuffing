@@ -107,6 +107,6 @@
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>
