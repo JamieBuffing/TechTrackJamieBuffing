@@ -80,14 +80,14 @@
     align-items: center;
     padding: 0.4rem 0.5rem;
     border-radius: 0.6rem;
-    background: rgba(10, 15, 25, 0.6);
+    background: #171a21;
     border: 1px solid transparent;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.1s ease;
   }
 
   .genre-row:hover {
     border-color: #66c0f4;
-    background: rgba(15, 25, 40, 0.95);
+    background: #171a21;
     transform: translateY(-1px);
   }
 
@@ -113,7 +113,7 @@
   .genre-name {
     font-size: 0.95rem;
     font-weight: 500;
-    color: #f5f5f5;
+    color: #c7d5e0;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -121,7 +121,7 @@
 
   .meta {
     font-size: 0.8rem;
-    color: #9ca9c6;
+    color: #c7d5e0;
   }
 
   .bar-wrap {
@@ -148,7 +148,7 @@
     border: 1px solid #2a475e;
     padding: 0.6rem 0.75rem;
     font-size: 0.8rem;
-    color: #e2e6ec;
+    color: #c7d5e0;
     opacity: 0;
     pointer-events: none;
     transform: translateY(4px);
@@ -185,7 +185,7 @@
   .game-hours {
     flex-shrink: 0;
     white-space: nowrap;
-    color: #9fd2ff;
+    color: #66c0f4;
   }
 
   .genre-row:hover .tooltip {

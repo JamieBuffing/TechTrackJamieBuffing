@@ -40,25 +40,19 @@
     const color = d3
     .scaleOrdinal()
     .range([
-      '#66c0f4', // Steam-blauw
-      '#1b9fff',
-      '#2a475e',
-      '#4b8bbf',
-      '#88c9ff',
-      '#c7d5e0',
-      '#5c7e10',
-      '#a860c4'
+      '#171a21',
+      '#1b2838',
+      '#2a475e'
     ]);
     
     const r = d3
       .scaleSqrt()
       .domain([0, maxRecent || 1])
-      .range([4, 18]);
+      .range([4, 22]);
 
     const root = svg
       .attr('viewBox', `0 0 ${width} ${height}`)
-      .attr('width', width)
-      .attr('height', height);
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     const g = root
       .append('g')
@@ -67,13 +61,14 @@
     // assen
     const xAxis = d3.axisBottom(x).ticks(6);
     const yAxis = d3.axisLeft(y).ticks(6);
-
+    
     g.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
       .call(xAxis)
       .append('text')
       .attr('x', innerWidth / 2)
       .attr('y', 32)
+      .attr('font-size', 20)
       .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
       .text('Aantal games');
@@ -84,22 +79,29 @@
       .attr('transform', 'rotate(-90)')
       .attr('x', -innerHeight / 2)
       .attr('y', -40)
+      .attr('font-size', 20)
       .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
       .text('Totale uren');
+
+    
+    // Data gesorteerd op speeltijd recent
+    const sortedData = [...data].sort(
+      (a, b) => r(b.recentHours) - r(a.recentHours)
+    );
 
     // punten
     const points = g
       .append('g')
       .selectAll('circle')
-      .data(data)
+      .data(sortedData)
       .join('circle')
       .attr('cx', (d) => x(d.totalGames))
       .attr('cy', (d) => y(d.totalHours))
       .attr('r', (d) => r(d.recentHours))
-      .attr('fill', (d, i) => d.isSelf ? '#ffd166' : color(i))
+      .attr('fill', (d, i) => d.isSelf ? '#66c0f4' : color(i))
       .attr('opacity', 0.9)
-      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : 'none'))
+      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#383838'))
       .attr('stroke-width', (d) => (d.isSelf ? 2 : 0));
 
     // tooltips via <title>
@@ -108,7 +110,7 @@
       .text(
         (d) =>
           `${d.personaname}\nGames: ${d.totalGames}\nTotale uren: ${d.totalHours}\nRecent: ${d.recentHours} u`
-      );
+    );
 
     // simpele legenda
     const legend = root.append('g').attr(
@@ -131,15 +133,15 @@
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('r', 6)
-        .attr('fill', color(item.type))
-        .attr('stroke', item.type === 'self' ? '#ffffff' : 'none')
+        .attr('fill', item.type === 'self' ? '#66c0f4' : color(i))
+        .attr('stroke', item.type === 'self' ? '#ffffff' : '#383838')
         .attr('stroke-width', item.type === 'self' ? 2 : 0);
 
       gItem
         .append('text')
         .attr('x', 10)
         .attr('y', 4)
-        .attr('font-size', 11)
+        .attr('font-size', 20)
         .text(item.label);
     });
 
@@ -156,4 +158,5 @@
   }
 </script>
 
-<svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden"></svg>
+<!-- <svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden"></svg> -->
+<svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden" style="width: 100%; height: auto; display: block;"></svg>
