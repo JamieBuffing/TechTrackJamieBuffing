@@ -75,18 +75,18 @@
   }
 
   .value {
-    fill: #ffffff;
+    fill: #171a21;
     font-size: 1.4rem;
     font-weight: 600;
   }
 
   .label {
-    fill: #cccccc;
+    fill: #171a21;
     font-size: 0.8rem;
   }
 
   .sublabel {
-    fill: #888888;
+    fill: #171a21;
     font-size: 0.7rem;
   }
 </style>

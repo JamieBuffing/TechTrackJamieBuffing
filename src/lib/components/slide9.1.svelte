@@ -70,7 +70,7 @@
       .attr('r', (d) => d.r)
       .attr('fill', (d) => color(d.hours))
       .attr('fill-opacity', 0.9)
-      .attr('stroke', '#0f1922')
+      .attr('stroke', '#171a21')
       .attr('stroke-width', 1.5)
       .append('title')
       .text((d) => `${d.name}\n${d.hours} uur gespeeld`);
@@ -82,7 +82,7 @@
       .attr('dy', '0.35em')
       .attr('pointer-events', 'none')
       .style('font-size', '10px')
-      .style('fill', '#f5f5f5')
+      .style('fill', '#c7d5e0')
       .text((d) => {
         // heel korte label (eerste woord / max 10 chars)
         const base = d.name || '';

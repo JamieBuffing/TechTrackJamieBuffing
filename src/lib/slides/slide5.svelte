@@ -147,7 +147,7 @@
 
   .intro {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #c7d5e0;
   }
 
   .summary {
@@ -184,7 +184,7 @@
 
   .meta {
     font-size: 0.8rem;
-    color: #aaa;
+    color: #c7d5e0;
   }
 
   .friend-list {
@@ -206,10 +206,10 @@
 
   .muted {
     font-size: 0.85rem;
-    color: #aaa;
+    color: #c7d5e0;
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>

@@ -157,7 +157,7 @@
     border-radius: 0.75rem;
     padding: 1rem 1.25rem;
     background: #171a21;
-    color: #f5f5f5;
+    color: #c7d5e0;
   }
 
   .login-panel {
@@ -180,7 +180,7 @@
     border-radius: 999px;
     border: 1px solid #2a475e;
     background: transparent;
-    color: #f5f5f5;
+    color: #c7d5e0;
     cursor: pointer;
     font-size: 0.9rem;
   }
@@ -202,7 +202,7 @@
 
   .btn.steam {
     background: #171a21;
-    color: #f5f5f5;
+    color: #c7d5e0;
     border: 1px solid #66c0f4;
   }
 
@@ -226,10 +226,10 @@
 
   .hint {
     font-size: 0.85rem;
-    color: #888;
+    color: #c7d5e0;
   }
 
   .hint.error {
-    color: #ff6b6b;
+    color: #f88;
   }
 </style>

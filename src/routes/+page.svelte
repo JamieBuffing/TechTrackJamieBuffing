@@ -123,12 +123,12 @@
     height: 6px;
     border-radius: 999px;
     border: none;
-    background: #333a48;
+    background: #2a475e;
     cursor: pointer;
   }
 
   .story-segment.active {
-    background: #4fa3ff;
+    background: #66c0f4;
   }
 
   .story-container {
@@ -142,12 +142,13 @@
   .story-header h1 {
     margin: 0;
     font-size: 1.4rem;
+    color: #171a21;
   }
 
   .story-subtitle {
     margin: 0.25rem 0 0;
     font-size: 0.9rem;
-    color: #a0a8ba;
+    color: #171a21;
   }
 
   .story-slide {
@@ -160,6 +161,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.75rem;
+    color: #171a21;
   }
 
   .story-footer button[disabled] {

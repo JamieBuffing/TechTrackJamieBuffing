@@ -99,10 +99,10 @@
 
   .intro {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #171a21;
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>
