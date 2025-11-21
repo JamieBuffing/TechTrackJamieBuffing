@@ -1,26 +1,21 @@
 // src/routes/api/profile/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
+import { resolveSteamId, getPlayerSummaries } from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
-  const steamid = url.searchParams.get('steamid');
+  try {
+    const steamid = resolveSteamId(url);
 
-  if (!steamid) {
-    return json({ error: 'Missing steamid' }, { status: 400 });
-  }
+    if (!steamid) {
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
+    }
 
-  const apiUrl =
-    'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/' +
-    `?key=${STEAM_API_KEY}&steamids=${steamid}`;
+    const players = await getPlayerSummaries(fetch, [steamid]);
+    const player = players[0] ?? null;
 
-  const res = await fetch(apiUrl);
-
-  if (!res.ok) {
+    return json({ steamid, player });
+  } catch (e) {
+    console.error(e);
     return json({ error: 'Failed to fetch profile from Steam' }, { status: 500 });
   }
-
-  const data = await res.json();
-  const player = data?.response?.players?.[0] || null;
-
-  return json({ player });
 }

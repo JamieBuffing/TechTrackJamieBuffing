@@ -9,11 +9,24 @@
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
   let genres = [];    // De plek waar de genres worden opgeslagen die uit de functie loadGenres() komen
 
+  // 🔹 Cache per steamId: { genres, error }
+  const cache = new Map();
+
   async function loadGenres() {   // De functie waarin de genres worden opgehaald
     if (!steamId) {   // Tenzij er geen steamid is want dan moet de gebruiker die eerst nog even kiezen in de eerste slide
-      error = 'Geen SteamID geselecteerd. Ga eerst naar slide 1 om een account te kiezen.';   // Deze tekst wordt dan op de pagina geladen en dat komt uit de let erro
+      error =
+        'Geen SteamID geselecteerd. Ga eerst naar slide 1 om een account te kiezen, deze tekst wordt dan op de pagina geladen en dat komt uit de let error';
       genres = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de genres array leeg blijft
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache check
+    const cached = cache.get(steamId);
+    if (cached) {
+      genres = cached.genres;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de genres eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -36,6 +49,8 @@
       console.error(e);   // Console log die error code
       error = 'Fout bij het laden van genres.';    // Vul de let error in met het volgende bericht
     } finally {   // Als laatste zet de loading state weer op false
+      // ✅ Cache schrijven
+      cache.set(steamId, { genres, error });
       loading = false;    // true --> false
     }
   }
@@ -45,6 +60,7 @@
     loadGenres();   // Voer deze functie opnieuw uit
   }
 </script>
+
 
 <div class="slide3">
   <h2>Genre / categorie verdeling</h2>
@@ -83,10 +99,10 @@
 
   .intro {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #171a21;
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>

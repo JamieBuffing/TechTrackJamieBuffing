@@ -13,10 +13,28 @@
   let genres = [];
   let mostExpensive = [];
 
+  // 🔹 Cache per steamId:
+  // { totalValue, currency, gamesPricedCount, totalOwnedCount, genres, mostExpensive, error }
+  const cache = new Map();
+
   async function loadLibraryValue() {
     if (!steamId) {
       error = 'Geen SteamID geselecteerd.';
       return;   // En stop met het uitvoeren van de rest van de functie
+    }
+
+    // ✅ Cache check
+    const cached = cache.get(steamId);
+    if (cached) {
+      totalValue = cached.totalValue;
+      currency = cached.currency;
+      gamesPricedCount = cached.gamesPricedCount;
+      totalOwnedCount = cached.totalOwnedCount;
+      genres = cached.genres;
+      mostExpensive = cached.mostExpensive;
+      error = cached.error;
+      loading = false;
+      return;
     }
 
     loading = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
@@ -31,8 +49,8 @@
       const res = await fetch(`/api/library-value?steamid=${steamId}`);
       const json = await res.json();
 
-      if (!res.ok) {    // Als er een error is moet die geplaats worden in de let error
-        error = json.error || 'Kon library waarde niet laden.';    // En als er geen bruikbare error is dan komt de tekst
+      if (!res.ok || json.error) {
+        error = json.error || 'Kon library waarde niet laden.';
       } else {    // Anders (dus geen error)
         if (json.message && (!json.genres || !json.genres.length)) {
           error = json.message;
@@ -48,6 +66,16 @@
       console.error(e);
       error = 'Netwerkfout bij het laden van library waarde.';
     } finally {
+      // ✅ Cache updaten
+      cache.set(steamId, {
+        totalValue,
+        currency,
+        gamesPricedCount,
+        totalOwnedCount,
+        genres,
+        mostExpensive,
+        error
+      });
       loading = false;
     }
   }
@@ -150,19 +178,20 @@
 
   .label {
     font-size: 0.85rem;
-    color: #ccc;
+    color: #c7d5e0;
   }
 
   .value {
     font-size: 1.4rem;
     font-weight: 600;
     margin-top: 0.2rem;
+    color: #66c0f4;
   }
 
   .note {
     margin-top: 0.2rem;
     font-size: 0.8rem;
-    color: #aaa;
+    color: #c7d5e0;
   }
 
   .section {
@@ -174,7 +203,7 @@
 
   .hint {
     font-size: 0.85rem;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .games-table {
@@ -193,14 +222,14 @@
   .games-table th {
     text-align: left;
     font-weight: 500;
-    color: #ccc;
+    color: #1b2838;
   }
 
   .games-table td {
-    color: #eee;
+    color: #1b2838;
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>

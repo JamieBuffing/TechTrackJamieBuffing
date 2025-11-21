@@ -1,45 +1,17 @@
 // src/routes/api/friends-stats/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-async function getFriendList(fetch, steamid) {
-  const url =
-    `https://api.steampowered.com/ISteamUser/GetFriendList/v1/` +
-    `?key=${STEAM_KEY}&steamid=${steamid}&relationship=friend`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('GetFriendList error', res.status, text);
-    throw new Error('Failed to fetch friend list');
-  }
-
-  const data = await res.json();
-  return data.friendslist?.friends ?? [];
-}
+import {
+  resolveSteamId,
+  getFriendList,
+  getOwnedGames,
+  getPlayerSummaries
+} from '$lib/server/steamApi.js';
 
 async function getOwnedStats(fetch, steamid) {
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=0` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.error('GetOwnedGames error', steamid, res.status);
-    return {
-      totalGames: 0,
-      totalHours: 0,
-      recentHours: 0
-    };
-  }
-
-  const data = await res.json();
-  const games = data.response?.games ?? [];
+  const games = await getOwnedGames(fetch, steamid, {
+    includeAppInfo: false,
+    includePlayedFreeGames: true
+  });
 
   const totalGames = games.length;
   const totalMinutes = games.reduce(
@@ -58,39 +30,17 @@ async function getOwnedStats(fetch, steamid) {
   };
 }
 
-async function getPlayerSummaries(fetch, steamids) {
-  const url =
-    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/` +
-    `?key=${STEAM_KEY}&steamids=${steamids.join(',')}`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    console.error('GetPlayerSummaries error', res.status);
-    return [];
-  }
-
-  const data = await res.json();
-  return data.response?.players ?? [];
-}
-
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    // 1. haal vrienden op
     const friends = await getFriendList(fetch, steamid);
-
-    // beperk aantal vrienden om API-calls te beperken (bijv. max 20)
     const friendIds = friends.map((f) => f.steamid).slice(0, 20);
-
-    // neem jouzelf + vrienden
     const allIds = [steamid, ...friendIds];
 
-    // 2. haal stats voor iedereen parallel op
     const statsList = await Promise.all(
       allIds.map(async (id) => {
         const stats = await getOwnedStats(fetch, id);
@@ -98,11 +48,9 @@ export async function GET({ url, fetch }) {
       })
     );
 
-    // 3. haal namen + avatars op
     const profiles = await getPlayerSummaries(fetch, allIds);
     const profileMap = new Map(profiles.map((p) => [p.steamid, p]));
 
-    // 4. combineer
     const result = statsList.map((s) => {
       const p = profileMap.get(s.steamid);
       return {

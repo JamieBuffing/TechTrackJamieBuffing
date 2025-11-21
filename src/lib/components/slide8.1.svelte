@@ -47,12 +47,12 @@
   .genre {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #f5f5f5;
+    color: #1b2838;
   }
 
   .meta {
     font-size: 0.8rem;
-    color: #aaa;
+    color: #1b2838;
   }
 
   .bar-wrap {

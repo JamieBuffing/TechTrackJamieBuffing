@@ -1,37 +1,17 @@
 // src/routes/api/top-games/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
+import { resolveSteamId, getOwnedGames } from '$lib/server/steamApi.js';
 
-async function getOwnedGames(fetch, steamid) {
-
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=1` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch owned games');
-  }
-
-  const data = await res.json();
-  const games = data.response?.games ?? [];
-
-  return games;
-}
+const TOP_N = 5;
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
-
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid);
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
     if (!games.length) {
       return json({ steamid, topGames: [] });
@@ -41,7 +21,7 @@ export async function GET({ url, fetch }) {
       (a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0)
     );
 
-    const topGames = sorted.slice(0, 5).map((g) => {
+    const topGames = sorted.slice(0, TOP_N).map((g) => {
       const minutes = g.playtime_forever || 0;
       const hours = minutes / 60;
 
@@ -50,7 +30,7 @@ export async function GET({ url, fetch }) {
         name: g.name,
         minutes,
         hours: Number(hours.toFixed(1)),
-        value: Number(hours.toFixed(1)) // voor donut-chart
+        value: Number(hours.toFixed(1)) // handig voor donut/pie charts
       };
     });
 
