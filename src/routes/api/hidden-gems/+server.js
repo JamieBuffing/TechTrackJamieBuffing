@@ -1,89 +1,26 @@
 // src/routes/api/hidden-gems/+server.js
 import { json } from '@sveltejs/kit';
-import { STEAM_KEY } from '$env/static/private';
-
-async function getOwnedGames(fetch, steamid) {
-
-  const url =
-    `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/` +
-    `?key=${STEAM_KEY}` +
-    `&steamid=${steamid}` +
-    `&include_appinfo=1` +
-    `&include_played_free_games=1`;
-
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error('GetOwnedGames error (hidden-gems)', res.status, text);
-    throw new Error('Failed to fetch owned games');
-  }
-
-  const data = await res.json();
-  const games = data.response?.games ?? [];
-  return games;
-}
-
-async function getSteamRating(fetch, appid) {
-
-  const url =
-    `https://store.steampowered.com/appreviews/${appid}` +
-    `?json=1&language=all&purchase_type=all`;
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.error('appreviews error', appid, res.status);
-    return null;
-  }
-
-  let data;
-  try {
-    data = await res.json();
-  } catch (e) {
-    console.error('appreviews JSON parse error', appid, e);
-    return null;
-  }
-
-  const q = data.query_summary;
-  if (!q) return null;
-
-  const totalReviews = q.total_reviews ?? 0;
-  const reviewScore = q.review_score ?? null;
-  const reviewScoreDesc = q.review_score_desc ?? '';
-  const totalPositive = q.total_positive ?? 0;
-  const positiveRatio =
-    totalReviews > 0 ? Math.round((totalPositive / totalReviews) * 100) : null;
-
-  const rating = {
-    reviewScore,
-    reviewScoreDesc,
-    totalReviews,
-    positiveRatio
-  };
-
-  return rating;
-}
+import { resolveSteamId, getOwnedGames, getReviewSummary } from '$lib/server/steamApi.js';
 
 export async function GET({ url, fetch }) {
   try {
-    const steamid = url.searchParams.get('steamid');
+    const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid' }, { status: 400 });
+      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid);
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
     if (!games.length) {
       return json({ steamid, gems: [], message: 'Geen games gevonden in je library.' });
     }
 
-    // Kandidaten: weinig gespeeld (0 < uren < 2)
     const lowPlayed = games
       .filter((g) => {
         const minutes = g.playtime_forever || 0;
         return minutes > 0 && minutes < 120;
       })
-      .slice(0, 20); // limiteren ivm API-limieten
+      .slice(0, 20);
 
     if (!lowPlayed.length) {
       return json({
@@ -97,14 +34,18 @@ export async function GET({ url, fetch }) {
 
     await Promise.all(
       lowPlayed.map(async (game) => {
-        const rating = await getSteamRating(fetch, game.appid);
-        if (!rating) return;
+        const summary = await getReviewSummary(fetch, game.appid);
+        if (!summary) return;
+
+        const totalReviews = summary.total_reviews ?? 0;
+        const reviewScore = summary.review_score ?? null;
+        const reviewScoreDesc = summary.review_score_desc ?? '';
+        const totalPositive = summary.total_positive ?? 0;
+        const positiveRatio =
+          totalReviews > 0 ? Math.round((totalPositive / totalReviews) * 100) : null;
 
         const minutes = game.playtime_forever || 0;
         const hours = minutes / 60;
-
-        const { reviewScore, reviewScoreDesc, totalReviews, positiveRatio } =
-          rating;
 
         if (!totalReviews || totalReviews === 0) return;
 

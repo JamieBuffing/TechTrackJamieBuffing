@@ -8,35 +8,62 @@
   let loadingGames = false;
   let error = '';
   let games = [];
-  let selectedAppId = '';
+  let selectedAppId = '';      // altijd als string
   let selectedGameName = '';
 
   let loadingAchievements = false;
   let achError = '';
   let achData = null;
 
+  // Cache per steamId voor games en per (steamId, appid) voor achievements
+  const gamesCache = new Map();
+  const achCache = new Map();
+
   let svgEl;
 
+  // --- TOP-GAMES LADEN (met cache) ---
   async function loadTopGames() {
     if (!browser || !steamId) return;
 
-    loadingGames = true;   // Nu gaan de games eenmaak laden dus mag de loading statement op true waardoor later in de html ook tekst wordt weergegeven.
-    error = '';   // De error voor de zekerheid maar even legen.
-    games = [];
+    // 1. Eerst cache proberen
+    const cached = gamesCache.get(steamId);
+    if (cached) {
+      games = cached.games;
+      error = cached.error;
 
-    try {   // Probeer de games op te halen uit de api route voor api/top-games/+server.js met het gekregen steamId
+      if (games.length > 0) {
+        // ALTIJD eerste game selecteren
+        selectedAppId = String(games[0].appid);
+        selectedGameName = games[0].name;
+        await loadAchievements();
+      } else {
+        selectedAppId = '';
+        selectedGameName = '';
+      }
+
+      return;
+    }
+
+    // 2. Echt fetchen
+    loadingGames = true;
+    error = '';
+    games = [];
+    selectedAppId = '';
+    selectedGameName = '';
+
+    try {
       const res = await fetch(`/api/top-games?steamid=${steamId}`);
       const json = await res.json();
 
       if (!res.ok || json.error) {
         error = json.error || 'Kon games niet laden.';
-        return;   // En stop met het uitvoeren van de rest van de functie
+        return;
       }
 
       games = json.topGames || [];
 
-      // automatisch de eerste game kiezen
       if (games.length > 0) {
+        // ALTIJD eerste game selecteren
         selectedAppId = String(games[0].appid);
         selectedGameName = games[0].name;
         await loadAchievements();
@@ -45,37 +72,53 @@
       console.error(err);
       error = 'Netwerkfout bij het laden van games.';
     } finally {
+      gamesCache.set(steamId, { games, error });
       loadingGames = false;
     }
   }
 
+  // --- ACHIEVEMENTS LADEN (met cache) ---
   async function loadAchievements() {
     if (!browser || !steamId || !selectedAppId) return;
+
+    // 1. Cache check
+    const key = `${steamId}:${selectedAppId}`;
+    const cached = achCache.get(key);
+    if (cached) {
+      achData = cached.achData;
+      achError = cached.achError;
+
+      if (browser) {
+        renderChart();
+      }
+
+      return;
+    }
 
     loadingAchievements = true;
     achError = '';
     achData = null;
 
-    try {   // Probeer de achievements op te halen uit de api route voor api/achievements/+server.js met het gekregen steamId
+    try {
       const res = await fetch(
         `/api/achievements?steamid=${steamId}&appid=${selectedAppId}`
       );
       const json = await res.json();
 
-      if (!res.ok || json.error) {    // Als er een error is moet die geplaats worden in de let error
-        achError = json.error || 'Kon achievements niet laden.';    // En als er geen bruikbare error is dan komt de tekst
-        return;   // En stop met het uitvoeren van de rest van de functie
+      if (!res.ok || json.error) {
+        achError = json.error || 'Kon achievements niet laden.';
+        return;
       }
 
-      if (json.total === 0) {    // Als er geen achievements zijn
+      if (json.total === 0) {
         achError = json.message || 'Deze game heeft geen achievements.';
-        return;   // En stop met het uitvoeren van de rest van de functie
+        return;
       }
-      // als alles goed gaat zoals gepland dan
-      achData = json;   // Vul de achievementsData met de data die uit de api fetch zijn gekomen
+
+      achData = json;
       const game = games.find((g) => String(g.appid) === String(selectedAppId));
-      if (game) {   // Als game bestaat dan
-        selectedGameName = game.name; // Dan moet de geselecteerde naam de naam van de game zijn
+      if (game) {
+        selectedGameName = game.name;
       }
 
       if (browser) {
@@ -85,16 +128,21 @@
       console.error(err);
       achError = 'Netwerkfout bij het laden van achievements.';
     } finally {
+      const key2 = `${steamId}:${selectedAppId}`;
+      achCache.set(key2, { achData, achError });
       loadingAchievements = false;
     }
   }
 
+  // Dropdown-wijziging
   function onGameChange(event) {
     selectedAppId = event.target.value;
+    const g = games.find((game) => String(game.appid) === String(selectedAppId));
+    selectedGameName = g ? g.name : '';
     loadAchievements();
   }
 
-  // Als de steamId veranderd of de browser herlaad of op een andere manier veranderd.
+  // Als steamId verandert => top-games laden
   $: if (browser && steamId) {
     loadTopGames();
   }
@@ -105,7 +153,7 @@
     }
   });
 
-  // Herteken de chart wanneer de data verandert
+  // Herteken chart wanneer data verandert
   $: if (browser && svgEl && achData) {
     renderChart();
   }
@@ -123,7 +171,7 @@
 
     const container = svgEl.parentElement;
     const margin = { top: 40, right: 40, bottom: 40, left: 150 };
-    const fullWidth = (container?.clientWidth || 900);
+    const fullWidth = container?.clientWidth || 900;
     const width = fullWidth - margin.left - margin.right;
     const height = Math.max(220, unlocked.length * 24);
 
@@ -132,7 +180,6 @@
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom);
 
-    // alles leegmaken voor we opnieuw tekenen
     svg.selectAll('*').remove();
 
     if (!unlocked.length) {
@@ -167,7 +214,7 @@
       .scaleBand()
       .domain(unlocked.map((d) => d.displayName))
       .range([0, height])
-      .padding(0.3);
+      .padding(0.2);
 
     const color = d3
       .scaleSequential(d3.interpolateCool)
@@ -176,7 +223,6 @@
     const xAxis = d3.axisBottom(x).ticks(5);
     const yAxis = d3.axisLeft(y).tickSize(0);
 
-    // assen
     g.append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
@@ -188,14 +234,12 @@
       .selectAll('text')
       .attr('class', 'y-label');
 
-    // titel boven de chart
     g.append('text')
       .attr('class', 'chart-title')
       .attr('x', 0)
       .attr('y', -12)
       .text(`Unlocked achievements voor ${selectedGameName}`);
 
-    // de cirkels
     const nodes = g
       .selectAll('.ach-node')
       .data(unlocked, (d) => d.apiName);
@@ -215,7 +259,6 @@
       .duration(600)
       .attr('r', Math.min(10, y.bandwidth() / 2));
 
-    // simpele tooltip via <title>
     nodesEnter.append('title').text((d) => {
       const dateStr = d.date.toLocaleDateString();
       return `${d.displayName}
@@ -247,7 +290,7 @@ ${d.description || ''}`;
             <option disabled>Geen games gevonden</option>
           {:else}
             {#each games as g}
-              <option value={g.appid}>{g.name}</option>
+              <option value={String(g.appid)}>{g.name}</option>
             {/each}
           {/if}
         </select>
@@ -279,8 +322,10 @@ ${d.description || ''}`;
           Elke cirkel is een achievement met een bekende unlock-datum. Horizontaal zie je de tijd,
           verticaal de naam van de achievement. Hover voor details.
         </p>
-        <svg bind:this={svgEl} class="achievements-chart"></svg>
+        <svg bind:this={svgEl}></svg>
       </div>
+    {:else}
+      <p class="hint">Kies een game om je achievement-tijdlijn te zien.</p>
     {/if}
   {/if}
 </div>
@@ -292,14 +337,7 @@ ${d.description || ''}`;
     gap: 1rem;
   }
 
-  h2 {
-    margin: 0 0 0.5rem;
-  }
-
   .controls {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     margin-bottom: 0.5rem;
   }
 
@@ -312,7 +350,7 @@ ${d.description || ''}`;
 
   select {
     background: #1b2838;
-    color: #fff;
+    color: #c7d5e0;
     border-radius: 0.4rem;
     border: 1px solid #2a475e;
     padding: 0.25rem 0.5rem;
@@ -330,63 +368,67 @@ ${d.description || ''}`;
     background: #171a21;
     border-radius: 0.6rem;
     padding: 0.75rem 1rem;
-    border: 1px solid #2a475e;
-    min-width: 110px;
+    min-width: 120px;
   }
 
   .summary-label {
     font-size: 0.8rem;
-    color: #aaa;
+    color: #c7d5e0;
+    margin-bottom: 0.25rem;
   }
 
   .summary-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
+    color: #c7d5e0;
   }
 
   .viz-wrapper {
-    background: #10151c;
+    background: #171a21;
     border-radius: 0.75rem;
     padding: 0.75rem 1rem 1rem;
-    border: 1px solid #2a475e;
   }
 
   .hint {
-    font-size: 0.85rem;
-    color: #ccc;
+    font-size: 0.8rem;
+    color: #c7d5e0;
     margin-bottom: 0.5rem;
   }
 
-  .achievements-chart {
+  svg {
     width: 100%;
-    display: block;
+    max-width: 100%;
   }
 
   .x-axis text,
   .y-axis text {
-    fill: #ddd;
-    font-size: 0.7rem;
+    fill: #c7d5e0;
+    font-size: 0.75rem;
   }
 
   .x-axis line,
-  .x-axis path,
   .y-axis line,
+  .x-axis path,
   .y-axis path {
-    stroke: #444;
+    stroke: #1b2838;
+  }
+
+  .y-label {
+    text-anchor: start;
   }
 
   .chart-title {
-    fill: #f5f5f5;
+    fill: #c7d5e0;
     font-size: 0.9rem;
     font-weight: 600;
   }
 
   .empty-text {
-    fill: #aaa;
+    fill: #c7d5e0;
     font-size: 0.9rem;
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>
