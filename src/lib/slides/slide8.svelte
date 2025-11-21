@@ -178,7 +178,7 @@
 
   .label {
     font-size: 0.85rem;
-    color: #1b2838;
+    color: #c7d5e0;
   }
 
   .value {
@@ -191,7 +191,7 @@
   .note {
     margin-top: 0.2rem;
     font-size: 0.8rem;
-    color: #1b2838;
+    color: #c7d5e0;
   }
 
   .section {
@@ -230,6 +230,6 @@
   }
 
   .error {
-    color: #ff7777;
+    color: #f88;
   }
 </style>
