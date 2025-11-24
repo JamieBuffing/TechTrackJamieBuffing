@@ -63,7 +63,7 @@ export async function GET({ url, fetch }) {
         }
 
         const baseScore =
-          0.5 * ratingNorm + 0.3 * popularityNorm + 0.2 * lowPlayNorm;
+          0.5 * ratingNorm + 0.15 * popularityNorm + 0.35 * lowPlayNorm;
 
         let gemScore = Math.round(baseScore * 100);
         if (gemScore < 0) gemScore = 0;

@@ -76,7 +76,8 @@
     <p class="hint">
       Elke cirkel is een game die je gespeeld hebt. Hoe groter de bubbel, hoe meer uur je erin hebt gestoken.
       Beweeg met je muis over een bubbel om te zien welke game het is.
-      Je kunt de bubbles ook een beetje verslepen.
+      Je kunt de bubbles ook een beetje verslepen.<br>
+      Het zijn alleen games met meer dan 10 uur
     </p>
 
     <SteamBubbleGalaxy data={games} width={700} height={450} />

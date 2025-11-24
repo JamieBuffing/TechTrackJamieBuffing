@@ -85,9 +85,10 @@
     </p>
   {:else}
     <p class="intro">
-      Elke cirkel is een speler. De horizontale as is het aantal games, de verticale as
-      het totaal aantal uren. De grootte van de cirkel laat zien hoeveel iemand
-      recent heeft gespeeld.
+      Elke cirkel is een speler. <br>
+      De horizontale as is do totale gespeelde tijd. <br>
+      De verticale as is het totaal aantal spellen. <br>
+      De grootte van de cirkel laat zien hoeveel iemand recent heeft gespeeld (laatste 2 weken).
     </p>
 
     <FriendsScatterPlot data={players} />
