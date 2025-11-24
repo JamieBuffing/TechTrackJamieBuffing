@@ -73,7 +73,7 @@
     <p class="error">{error}</p>
 
   {:else if gems.length === 0}
-    <p class="muted">
+    <p class="verborgen">
       We konden geen hidden gems vinden. Misschien speel je alles al heel uitgebreid,
       of zijn er weinig games met voldoende reviews.
     </p>
@@ -102,7 +102,7 @@
     color: #1b2838;
   }
 
-  .muted {
+  .verborgen {
     font-size: 0.85rem;
     color: #1b2838;
   }

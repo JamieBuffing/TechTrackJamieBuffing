@@ -77,7 +77,7 @@
 
       gEmpty
         .append('text')
-        .attr('class', 'empty-text')
+        .attr('class', 'emptyText')
         .text('Geen achievements met een unlock-datum gevonden.')
         .attr('x', 0)
         .attr('y', 0);
@@ -109,7 +109,7 @@
 
     // X-as onderaan
     g.append('g')
-      .attr('class', 'x-axis')
+      .attr('class', 'xAxis')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis)
       .selectAll('text')
@@ -119,13 +119,13 @@
     const yAxis = d3.axisLeft(y).tickSize(0);
 
     g.append('g')
-      .attr('class', 'y-axis')
+      .attr('class', 'yAxis')
       .call(yAxis)
       .selectAll('text')
       .remove(); // geen tekstlabels tonen
 
     g.append('text')
-      .attr('class', 'chart-title')
+      .attr('class', 'chartTitle')
       .attr('x', 0)
       .attr('y', -12)
       .attr('fill', '#c7d5e0')
@@ -142,13 +142,13 @@
     const iconSize = Math.min(24, y.bandwidth());
 
     const iconGroup = g
-      .selectAll('.ach-icon')
+      .selectAll('.achievementsIcon')
       .data(unlocked, (d) => d.apiName);
 
     const iconEnter = iconGroup
       .enter()
       .append('image')
-      .attr('class', 'ach-icon')
+      .attr('class', 'achievementsIcon')
       .attr('href', (d) => d.icon || gameIconUrl || '')
       .attr('x', -iconSize - 8)
       .attr('y', (d) => y(d.displayName) + (y.bandwidth() - iconSize) / 2)
@@ -159,13 +159,13 @@
 
     // ---- ACHIEVEMENT NODES ----
     const nodes = g
-      .selectAll('.ach-node')
+      .selectAll('.achievementsNode')
       .data(unlocked, (d) => d.apiName);
 
     const nodesEnter = nodes
       .enter()
       .append('circle')
-      .attr('class', 'ach-node')
+      .attr('class', 'achievementsNode')
       .attr('cx', (d) => x(d.date))
       .attr('cy', (d) => y(d.displayName) + y.bandwidth() / 2)
       .attr('r', 0)
