@@ -93,7 +93,7 @@
   </section>
 
   <footer class="story-footer">
-    <button type="button" on:click={prev} disabled={activeSlide === 0}>
+    <button class="btn navigation" type="button" on:click={prev} disabled={activeSlide === 0}>
       ◀ Vorige
     </button>
 
@@ -102,6 +102,7 @@
     </span>
 
     <button
+      class="btn navigation" 
       type="button"
       on:click={next}
       disabled={activeSlide === totalSlides - 1}
@@ -120,7 +121,7 @@
 
   .story-segment {
     flex: 1;
-    height: 6px;
+    height: 10px;
     border-radius: 999px;
     border: none;
     background: #2a475e;

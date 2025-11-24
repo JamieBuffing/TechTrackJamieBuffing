@@ -109,31 +109,6 @@
           </div>
         </div>
       {/if}
-
-      <div class="card">
-        <h3>Vrienden (max 20)</h3>
-        {#if friends.length === 0}
-          <p class="muted">
-            Geen vrienden met zichtbare gegevens gevonden.
-          </p>
-        {:else}
-          <ul class="friend-list">
-            {#each friends as f}
-              <li>
-                {#if f.avatar}
-                  <img src={f.avatar} alt="" class="avatar" />
-                {/if}
-                <div>
-                  <div class="name">{f.personaname}</div>
-                  <div class="meta">
-                    {f.totalGames} games • {f.totalHours}u totaal • {f.recentHours}u recent
-                  </div>
-                </div>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-      </div>
     </div>
   {/if}
 </div>
@@ -147,7 +122,7 @@
 
   .intro {
     font-size: 0.9rem;
-    color: #c7d5e0;
+    color: #1b2838;
   }
 
   .summary {
@@ -163,6 +138,7 @@
     border: 1px solid #2a475e;
     padding: 0.75rem 1rem;
     flex: 1 1 260px;
+    color: #c7d5e0;
   }
 
   .player-row {
@@ -184,28 +160,6 @@
 
   .meta {
     font-size: 0.8rem;
-    color: #c7d5e0;
-  }
-
-  .friend-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    max-height: 260px;
-    overflow-y: auto;
-  }
-
-  .friend-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .muted {
-    font-size: 0.85rem;
     color: #c7d5e0;
   }
 
