@@ -8,15 +8,15 @@
   <link rel="icon" href={favicon} />
   <title>Steam Story</title>
 </svelte:head>
-
+<!-- Header -->
 <header>
 	<h1>My Steam story</h1>
 </header>
-
+<!-- Main -->
 <main>
   <slot />
 </main>
-
+<!-- Footer -->
 <footer>
   &copy; Jamie Buffing
 </footer>

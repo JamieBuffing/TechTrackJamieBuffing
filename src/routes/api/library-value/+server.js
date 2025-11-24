@@ -2,15 +2,19 @@
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames, getStoreDetails } from '$lib/server/steamApi.js';
 
+// Haal de waarde op van de gebruiker zijn steam bibliotheek
 export async function GET({ url, fetch }) {
   try {
+    // Haal de steamid op en controleer deze
     const steamid = resolveSteamId(url);
     if (!steamid) {
       return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
+    // Hier worden de games opgehaald en opgeslagen met app info maar zonder gratis games
     const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true, includePlayedFreeGames: false });
 
+    // Controleer of er echt games zijn binnengekomen anders....
     if (!games.length) {
       return json({
         steamid,
@@ -23,10 +27,16 @@ export async function GET({ url, fetch }) {
         message: 'Geen games gevonden in je library.'
       });
     }
-
+    
+    // De totale aantal games
     const totalOwnedCount = games.length;
+
+    // opslag plek voor de games
     const gameEntries = [];
 
+    // Haalt voor elke game aanvullende store-details op (prijs, genres, etc.),
+    // filtert games zonder prijsinformatie, bepaalt de primaire genre en
+    // berekent gespeelde uren. De verzamelde data wordt als genormaliseerde game-entry opgeslagen in gameEntries.
     await Promise.all(
       games.map(async (g) => {
         const details = await getStoreDetails(fetch, g.appid, {
@@ -61,6 +71,7 @@ export async function GET({ url, fetch }) {
       })
     );
 
+    // Als er niks in gameEntries staat dan....
     if (!gameEntries.length) {
       return json({
         steamid,
@@ -74,9 +85,12 @@ export async function GET({ url, fetch }) {
       });
     }
 
+    // Bekijkt wat de currency is voor de eerste game uit gameEntries
     const currency = gameEntries[0].currency;
+    // Telt alle waardes op en slaat het totaal op
     const totalValue = gameEntries.reduce((sum, g) => sum + g.price, 0);
 
+    // Voor elke g uit gameEntries (elke game) en zet ze in een genre en telt hoeveel games er in dat genre zitten
     const genreMap = new Map();
     for (const g of gameEntries) {
       const prev = genreMap.get(g.genre) || { value: 0, count: 0 };
@@ -86,6 +100,8 @@ export async function GET({ url, fetch }) {
       });
     }
 
+    // Converteer genreMap naar een array van genre-statistieken
+    // (totaalwaarde, aantal games, en percentage van de totale waarde).
     let genres = [...genreMap.entries()].map(([genre, info]) => ({
       genre,
       value: Number(info.value.toFixed(2)),
@@ -95,8 +111,10 @@ export async function GET({ url, fetch }) {
         : 0
     }));
 
+    // Sorteer de genres op hoogste waarde en sla alleen de top 10 op
     genres = genres.sort((a, b) => b.value - a.value).slice(0, 10);
 
+    // Sla de 15 duurste games op met hun id, naam, prijs en speeltijd
     let mostExpensive = [...gameEntries]
       .sort((a, b) => b.price - a.price)
       .slice(0, 15)
@@ -107,6 +125,7 @@ export async function GET({ url, fetch }) {
         hours: g.hours
       }));
 
+    // Geef alle data terug aan de pagina
     return json({
       steamid,
       currency,
@@ -116,6 +135,7 @@ export async function GET({ url, fetch }) {
       genres,
       mostExpensive
     });
+    // En vang mogelijke errors op
   } catch (e) {
     console.error(e);
     return json({ error: 'Failed to load library value' }, { status: 500 });

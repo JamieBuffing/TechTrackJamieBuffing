@@ -1,12 +1,11 @@
 // src/lib/slideCache.js
-
-// Cache per 'actieve' steamId.
-// Zodra de steamId verandert, gooien we de cache leeg.
+// Cache per actieve steamId
+// Zodra de steamId verandert wordt alles verwijderd
 let activeSteamId = null;
-const store = new Map(); // key = `${slide}:${key}` → waarde = { data, error }
+const store = new Map();  // opslag
 
 /**
- * Stel de actieve steamId in.
+ * Stel de actieve steamId in, als er geen steamid is of hij niet gelijk is aan de laatst opgeslagen
  * Bij een nieuwe steamId wordt de hele cache leeggemaakt.
  */
 export function setActiveSteamId(steamId) {
@@ -17,7 +16,7 @@ export function setActiveSteamId(steamId) {
 }
 
 /**
- * Haal gecachte waarde op voor een slide + key.
+ * Haal gecachte waarde op voor een slide
  */
 export function getCached(slide, key = 'default') {
   if (!activeSteamId) return null;
