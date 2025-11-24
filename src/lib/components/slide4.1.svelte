@@ -1,3 +1,4 @@
+<!-- srs/lib/components/sllide4.1 -->
 <script>
   export let value = 0; // 0 - 100
   export let size = 160;

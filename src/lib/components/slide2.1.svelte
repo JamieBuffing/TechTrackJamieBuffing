@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide2.1 -->
 <script>
   import { onMount } from 'svelte';    // Importeer de functies die svelte gebruikt
 
