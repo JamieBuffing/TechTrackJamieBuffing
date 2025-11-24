@@ -22,8 +22,8 @@
 
 <div class="gems">
   {#each data as g}
-    <article class="gem-card">
-      <div class="top-row">
+    <article class="gemCard">
+      <div class="topRow">
         <img
           class="cover"
           src={coverUrl(g.appid)}
@@ -33,13 +33,13 @@
         />
         <div class="main">
           <h3>{g.name}</h3>
-          <div class="meta">
+          <div class="gegevens">
             <span>Jij: {formatHours(g.hours)} gespeeld</span>
             <span class="divider">•</span>
             <span>{formatSteamRating(g.steamRating)}</span>
           </div>
 
-          <div class="gem-score">
+          <div class="gemScore">
             <div class="badge">
               Hidden gem score: <strong>{g.gemScore}/100</strong>
             </div>
@@ -58,14 +58,14 @@
     height: 100%;
   }
 
-  .gem-card {
+  .gemCard {
     background: #171a21;
     border-radius: 0.9rem;
     border: 1px solid #2a475e;
     padding: 0.6rem 0.7rem;
   }
 
-  .top-row {
+  .topRow {
     display: flex;
     gap: 0.7rem;
     align-items: flex-start;
@@ -91,7 +91,7 @@
     color: #66c0f4;    
   }
 
-  .meta {
+  .gegevens {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -103,7 +103,7 @@
     opacity: 0.6;
   }
 
-  .gem-score {
+  .gemScore {
     margin-top: 0.2rem;
     font-size: 0.85rem;
   }
@@ -117,16 +117,5 @@
     border: 1px solid #66c0f4;
     color: #66c0f4;
     font-size: 0.8rem;
-  }
-
-  @media (max-width: 640px) {
-    .top-row {
-      flex-direction: column;
-    }
-
-    .cover {
-      width: 100%;
-      height: auto;
-    }
   }
 </style>

@@ -25,13 +25,13 @@ footer {
   align-self: center;
   color: #c7d5e0;
 }
-.story-bar {
+.storyBar {
   display: flex;
   gap: 6px;
   margin-bottom: 1rem;
 }
 
-.story-segment {
+.storySegment {
   flex: 1;
   height: 15px;
   background: #2a475e;
@@ -41,7 +41,7 @@ footer {
   cursor: pointer;
 }
 
-.story-segment.active {
+.storySegment.active {
   background: #66c0f4;
 }
 

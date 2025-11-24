@@ -97,13 +97,13 @@
       {#if you}
         <div class="card">
           <h3>Jij</h3>
-          <div class="player-row">
+          <div class="playerRow">
             {#if you.avatar}
               <img src={you.avatar} alt="" class="avatar" />
             {/if}
             <div>
               <div class="name">{you.personaname}</div>
-              <div class="meta">
+              <div class="gegevens">
                 {you.totalGames} games • {you.totalHours}u totaal • {you.recentHours}u recent
               </div>
             </div>
@@ -142,7 +142,7 @@
     color: #c7d5e0;
   }
 
-  .player-row {
+  .playerRow {
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -159,7 +159,7 @@
     font-weight: 500;
   }
 
-  .meta {
+  .gegevens {
     font-size: 0.8rem;
     color: #c7d5e0;
   }
