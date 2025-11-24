@@ -9,5 +9,6 @@ export const presetSteamIds = [
   { label: 'Hennie', id: '76561198079219992' },
   { label: 'Than', id: '76561198099044122' },
   { label: 'David', id: '76561198863013731'},
-  { label: 'James', id: '76561198873928636'}
+  { label: 'James', id: '76561198873928636'},
+  { label: 'k.e.m.hoek', id: '76561198289991653'}
 ];

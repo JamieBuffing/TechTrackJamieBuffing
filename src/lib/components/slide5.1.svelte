@@ -1,162 +1,199 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+
+  let d3Promise;
+
+  const loadD3 = () => {
+    if (!d3Promise) {
+      d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+    }
+    return d3Promise;
+  };
 
   // data: [{ steamid, personaname, avatar, totalGames, totalHours, recentHours, isSelf }]
   export let data = [];
   export let width = 700;
   export let height = 420;
-  export let margin = { top: 30, right: 20, bottom: 40, left: 50 };
-  
 
   let svgEl;
   let cleanup = () => {};
 
-  function draw() {
+  async function draw() {
+    // vorige render opruimen
+    cleanup();
+
     if (!svgEl || !data || data.length === 0) return;
 
-    const svg = d3.select(svgEl);
-    svg.selectAll('*').remove();
+    const d3 = await loadD3();
 
+    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const maxGames = d3.max(data, (d) => d.totalGames) || 0;
-    const maxHours = d3.max(data, (d) => d.totalHours) || 0;
-    const maxRecent = d3.max(data, (d) => d.recentHours) || 0;
-
-    const x = d3
-      .scaleLinear()
-      .domain([0, maxGames * 1.05])
-      .nice()
-      .range([0, innerWidth]);
-
-    const y = d3
-      .scaleLinear()
-      .domain([0, maxHours * 1.05])
-      .nice()
-      .range([innerHeight, 0]);
-
-    const color = d3
-    .scaleOrdinal()
-    .range([
-      '#171a21',
-      '#1b2838',
-      '#2a475e'
-    ]);
-    
-    const r = d3
-      .scaleSqrt()
-      .domain([0, maxRecent || 1])
-      .range([4, 22]);
-
-    const root = svg
+    const svg = d3
+      .select(svgEl)
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
-    const g = root
+    // alles leegmaken in de svg voor een schone render
+    svg.selectAll('*').remove();
+
+    const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    const maxTotalHours = d3.max(data, (d) => d.totalHours) || 1;
+    const maxGames = d3.max(data, (d) => d.totalGames) || 1;
+    const maxRecentHours = d3.max(data, (d) => d.recentHours) || 1;
+
+    // x = totale speeltijd
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, maxTotalHours * 1.05])
+      .range([0, innerWidth])
+      .nice();
+
+    // y = aantal spellen
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, maxGames * 1.05])
+      .range([innerHeight, 0])
+      .nice();
+
+    // 🔹 radius schaalt met recente speeltijd
+    const radiusScale = d3
+      .scaleSqrt()
+      .domain([0, maxRecentHours || 1])
+      .range([12, 38]); // min / max grootte van de bollen
+
+    // 🔹 defs met avatar-patterns (met grootte gebaseerd op radius)
+    const defs = svg.append('defs');
+
+    data.forEach((p) => {
+      if (!p.avatar) return;
+
+      const r = radiusScale(p.recentHours || 0);
+
+      const pattern = defs
+        .append('pattern')
+        .attr('id', `avatar-${p.steamid}`)
+        .attr('patternUnits', 'objectBoundingBox')
+        .attr('width', 1)
+        .attr('height', 1);
+
+      pattern
+        .append('image')
+        .attr('href', p.avatar)
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', r * 2)
+        .attr('height', r * 2)
+        .attr('preserveAspectRatio', 'xMidYMid slice');
+    });
+
     // assen
-    const xAxis = d3.axisBottom(x).ticks(6);
-    const yAxis = d3.axisLeft(y).ticks(6);
-    
-    g.append('g')
-      .attr('transform', `translate(0,${innerHeight})`)
-      .call(xAxis)
-      .append('text')
-      .attr('x', innerWidth / 2)
-      .attr('y', 32)
-      .attr('font-size', 20)
-      .attr('fill', 'currentColor')
-      .attr('text-anchor', 'middle')
-      .text('Aantal games');
+    const xAxis = d3.axisBottom(xScale).ticks(5);
+    const yAxis = d3.axisLeft(yScale).ticks(5);
 
     g.append('g')
-      .call(yAxis)
-      .append('text')
+      .attr('transform', `translate(0,${innerHeight})`)
+      .call(xAxis);
+
+    g.append('g').call(yAxis);
+
+    g.append('text')
+      .attr('x', innerWidth / 2)
+      .attr('y', innerHeight + 40)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#1b2838')
+      .attr('font-size', 12)
+      .text('Totale gespeelde uren');
+
+    g.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -innerHeight / 2)
       .attr('y', -40)
-      .attr('font-size', 20)
-      .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
-      .text('Totale uren');
+      .attr('fill', '#1b2838')
+      .attr('font-size', 12)
+      .text('Aantal spellen');
 
-    
-    // Data gesorteerd op speeltijd recent
-    const sortedData = [...data].sort(
-      (a, b) => r(b.recentHours) - r(a.recentHours)
-    );
+    // tooltip
+    const tooltip = d3
+      .select(svgEl.parentNode)
+      .append('div')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', 'rgba(0,0,0,0.85)')
+      .style('color', '#fff')
+      .style('padding', '6px 10px')
+      .style('border-radius', '6px')
+      .style('font-size', '12px')
+      .style('opacity', 0);
 
-    // punten
-    const points = g
-      .append('g')
-      .selectAll('circle')
-      .data(sortedData)
-      .join('circle')
-      .attr('cx', (d) => x(d.totalGames))
-      .attr('cy', (d) => y(d.totalHours))
-      .attr('r', (d) => r(d.recentHours))
-      .attr('fill', (d, i) => d.isSelf ? '#66c0f4' : color(i))
-      .attr('opacity', 0.9)
-      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#383838'))
-      .attr('stroke-width', (d) => (d.isSelf ? 2 : 0));
-
-    // tooltips via <title>
-    points
-      .append('title')
-      .text(
-        (d) =>
-          `${d.personaname}\nGames: ${d.totalGames}\nTotale uren: ${d.totalHours}\nRecent: ${d.recentHours} u`
-    );
-
-    // simpele legenda
-    const legend = root.append('g').attr(
-      'transform',
-      `translate(${margin.left}, 10)`
-    );
-
-    const legendItems = [
-      { label: 'Jij', type: 'self' },
-      { label: 'Vriend', type: 'friend' }
-    ];
-
-    legendItems.forEach((item, i) => {
-      const gItem = legend
-        .append('g')
-        .attr('transform', `translate(${i * 120}, 0)`);
-
-      gItem
-        .append('circle')
-        .attr('cx', 0)
-        .attr('cy', 0)
-        .attr('r', 6)
-        .attr('fill', item.type === 'self' ? '#66c0f4' : color(i))
-        .attr('stroke', item.type === 'self' ? '#ffffff' : '#383838')
-        .attr('stroke-width', item.type === 'self' ? 2 : 0);
-
-      gItem
-        .append('text')
-        .attr('x', 10)
-        .attr('y', 4)
-        .attr('font-size', 20)
-        .text(item.label);
+    // 🔹 Sorteer zodat grote cirkels onder komen, kleine bovenop
+    const sortedData = [...data].sort((a, b) => {
+      const ra = radiusScale(a.recentHours || 0);
+      const rb = radiusScale(b.recentHours || 0);
+      return rb - ra; // grote eerst, kleine laatst → kleine liggen bovenop
     });
 
+    // scatter circles
+    const circles = g
+      .selectAll('circle.player')
+      .data(sortedData, (d) => d.steamid);
+
+    circles
+      .enter()
+      .append('circle')
+      .attr('class', 'player')
+      .attr('cx', (d) => xScale(d.totalHours))
+      .attr('cy', (d) => yScale(d.totalGames))
+      .attr('r', (d) => radiusScale(d.recentHours || 0))
+      .attr('fill', (d) =>
+        d.avatar ? `url(#avatar-${d.steamid})` : d.isSelf ? '#ff9900' : '#4c6a8a'
+      )
+      .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#1b2838'))
+      .attr('stroke-width', (d) => (d.isSelf ? 2 : 1))
+      .on('mouseenter', function (event, d) {
+        tooltip
+          .style('opacity', 1)
+          .html(`
+            <strong>${d.personaname}</strong><br/>
+            Games: ${d.totalGames}<br/>
+            Totaal: ${d.totalHours} uur<br/>
+            Laatste 2 weken: ${d.recentHours} uur
+          `);
+      })
+      .on('mousemove', function (event) {
+        tooltip
+          .style('left', event.pageX + 12 + 'px')
+          .style('top', event.pageY - 28 + 'px');
+      })
+      .on('mouseleave', function () {
+        tooltip.style('opacity', 0);
+      });
+
+    // cleanup functie voor volgende draws / unmount
     cleanup = () => {
       svg.selectAll('*').remove();
+      tooltip.remove();
     };
   }
 
-  onMount(draw);
-  onDestroy(() => cleanup());
+  onMount(() => {
+    draw();
+    return () => cleanup();
+  });
 
   $: if (svgEl && data) {
     draw();
   }
 </script>
 
-<!-- <svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden"></svg> -->
-<svg bind:this={svgEl} role="img" aria-label="Vergelijking met vrienden" style="width: 100%; height: auto; display: block;"></svg>
+<svg
+  bind:this={svgEl}
+  role="img"
+  aria-label="Vergelijking met vrienden"
+  style="width: 100%; height: auto; display: block;"
+></svg>

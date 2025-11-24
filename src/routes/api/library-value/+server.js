@@ -9,7 +9,7 @@ export async function GET({ url, fetch }) {
       return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
-    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
+    const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true, includePlayedFreeGames: false });
 
     if (!games.length) {
       return json({
