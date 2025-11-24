@@ -1,3 +1,4 @@
+<!-- srs/lib/slides/slide4 -->
 <script>
   import { browser } from '$app/environment';
   import RadialProgress from '$lib/components/slide4.1.svelte';

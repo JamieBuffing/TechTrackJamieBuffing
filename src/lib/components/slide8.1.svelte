@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide8.1 -->
 <script>
   export let data = [];
   export let currency = 'EUR';
