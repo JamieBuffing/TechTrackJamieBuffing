@@ -76,12 +76,12 @@
   {:else}
     <div class="charts">
       <div class="chart-block">
-        <h3>Speeltijd per game (uren)</h3>
+        <h3>Speeltijd per game</h3>
         <!-- Hier komt de BarChart -->
         <TopGamesBarChart data={topGames} />
       </div>
       <div class="chart-block">
-        <h3>Verdeling speeltijd (donut)</h3>
+        <h3>Verdeling speeltijd</h3>
         <!-- Hier komt de DonutChart -->
         <TopGamesDonutChart data={topGames} width={360} height={360} />
       </div>
@@ -96,6 +96,10 @@
     gap: 1rem;
   }
 
+  h2 {
+    text-align: center;
+  }
+  
   .charts {
     display: flex;
     flex-wrap: wrap;
@@ -104,6 +108,7 @@
   }
 
   .chart-block {
+    text-align: center;
     flex: 1 1 320px;
   }
 
