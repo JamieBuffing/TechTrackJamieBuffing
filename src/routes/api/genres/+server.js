@@ -98,7 +98,6 @@ export async function GET({ url, fetch }) {
     categoryList = categoryList
       .sort((a, b) => b.hours - a.hours)
       .slice(0, 12);
-    console.log({ steamid, genres: categoryList })
     return json({ steamid, genres: categoryList });
   } catch (e) {
     console.error(e);

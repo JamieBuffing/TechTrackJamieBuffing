@@ -44,7 +44,6 @@
       const data = await res.json();
       const player = data?.player;
       const visibility = player?.communityvisibilitystate;
-      console.log(visibility)
 
       // Steam visibility:
       // 1 = Private, 2 = Friends Only, 3 = Public
@@ -63,7 +62,7 @@
       dispatch('start');
     } catch (err) {
       console.error(err);
-      profileError = 'Er ging iets mis bij het controleren van je profiel.';
+      profileError = 'Er ging iets mis bij het laden van je profiel.';
     } finally {
       loadingProfile = false;
     }
@@ -76,7 +75,8 @@
   <h1>Welkom bij jouw Steam Story</h1>
   <p>
     Login met je Steam account of kies één van de preset accounts om
-    door te gaan.
+    door te gaan.<br>
+    Standaard ben ik zelf ingelogd voor dit project maar dit kan ik uitzetten door mijn default weg te halen.
   </p>
 
   {#if steamId}

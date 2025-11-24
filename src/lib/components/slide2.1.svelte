@@ -13,10 +13,10 @@
 
   export let data = [];   // Sla hier de data op en exporteer deze zodat het zichtbaar is voor andere bestanden
 
-  export let width = 400;   // Exporteer de breedte
-  export let height = 400;    // Exporteer de hoogte
-  export let innerRadius = 120;   // Halve diameter van binnen cirkel
-  export let outerRadius = 200;   // Halve diameter buiten cirkel
+  export let width = 500;   // Exporteer de breedte
+  export let height = 500;    // Exporteer de hoogte
+  export let innerRadius = Math.min(width, height) / 3.5;   // Exporteer de radius van de binnenkant
+  export let outerRadius = Math.min(width, height) / 2.2;    // Exporteer de radius van de buitenkant
   export let padAngle = 0.02;     // Ruimte tussen blokken
 
   let svgEl;
@@ -36,6 +36,7 @@
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
 
+    // Tooltip
     const tooltipEl = d3
       .select('body')
       .append('div')
@@ -73,7 +74,8 @@
     svg
       .attr('viewBox', [-width / 2, -height / 2, width, height])
       .attr('width', '100%')
-      .attr('height', '100%');
+      .attr('height', '100%')
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     // 🔹 Tooltip helpers (gedeeld door paths + labels)
     function showTooltip(event, d) {
@@ -105,7 +107,7 @@
       tooltipEl.style('opacity', 0);
     }
 
-    // 🔹 Donut slices
+    // 🔹 Donut-slices
     const paths = svg
       .append('g')
       .selectAll('path')
@@ -113,13 +115,12 @@
       .join('path')
       .attr('fill', (d) => color(d.data.name))
       .attr('d', arc)
-      .style('cursor', 'pointer')
       .on('mouseenter', function (event, d) {
         showTooltip(event, d);
         d3.select(this)
           .transition()
           .duration(150)
-          .attr('transform', 'scale(1.04)');
+          .attr('transform', 'scale(0.95)');
       })
       .on('mousemove', function (event) {
         moveTooltip(event);
@@ -137,12 +138,12 @@
     const maxTextWidth = outerRadius - innerRadius - padding;
 
     const labels = svg.append('g')
-      .attr('font-size', 15)
+      .attr('font-size', 12)
       .attr('text-anchor', 'middle')
+      .attr('fill', '#ffffff')
       .selectAll('text')
       .data(arcs)
       .join('text')
-      .attr('fill', '#FFFFFF')
       .each(function (d) {
         const [x, y] = arc.centroid(d);
         const angle = ((d.startAngle + d.endAngle) / 2) * 180 / Math.PI;
@@ -152,7 +153,7 @@
         const textSel = d3.select(this)
           .attr('transform', `translate(${x},${y}) rotate(${angle})`)
           .attr('dy', '0.35em')
-          .text(label);
+          .text(label)
 
         // Tekst inkorten tot hij in de beschikbare breedte past
         if (this.getComputedTextLength() > maxTextWidth) {
@@ -164,7 +165,6 @@
         }
       });
 
-    // 🔹 Cleanup functie opslaan voor volgende draw / unmount
     cleanup = () => {
       svg.selectAll('*').remove();
       tooltipEl.remove();
@@ -182,4 +182,9 @@
   }
 </script>
 
-<svg bind:this={svgEl} role="img" aria-label="Donut chart" style="width: 100%; height: auto; display: block;"></svg>
+<svg
+  bind:this={svgEl}
+  role="img"
+  aria-label="Donut chart"
+  style="width: 100%; height: auto; display: block;"
+></svg>
