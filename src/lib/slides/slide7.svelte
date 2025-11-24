@@ -1,3 +1,4 @@
+<!-- srs/lib/slides/slide7 -->
 <script>
   import { browser } from '$app/environment';
   import HiddenGemsList from '$lib/components/slide7.1.svelte';

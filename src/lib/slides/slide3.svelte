@@ -1,4 +1,4 @@
-<!-- src/lib/slides/slide3.svelte -->
+<!-- src/lib/slides/slide3 -->
 <script>
   import { browser } from '$app/environment';   // geeft true terug als de app in de browser runt
   import GenreIconsChart from '$lib/components/slide3.1.svelte';    // 

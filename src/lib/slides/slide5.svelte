@@ -1,4 +1,4 @@
-<!-- src/lib/slides/Slide5.svelte -->
+<!-- src/lib/slides/slide5 -->
 <script>
   import { browser } from '$app/environment';   // geeft true terug als de app in de browser runt
   import FriendsScatterPlot from '$lib/components/slide5.1.svelte';   // FriendsScatterPlot

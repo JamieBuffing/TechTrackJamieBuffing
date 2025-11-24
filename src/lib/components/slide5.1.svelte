@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide5.1 -->
 <script>
   import { onMount } from 'svelte';
 
