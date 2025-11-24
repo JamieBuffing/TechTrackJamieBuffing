@@ -77,7 +77,7 @@
 
       const pattern = defs
         .append('pattern')
-        .attr('id', `avatar-${p.steamid}`)
+        .attr('id', `avatar${p.steamid}`)
         .attr('patternUnits', 'objectBoundingBox')
         .attr('width', 1)
         .attr('height', 1);
@@ -152,7 +152,7 @@
       .attr('cy', (d) => yScale(d.totalGames))
       .attr('r', (d) => radiusScale(d.recentHours || 0))
       .attr('fill', (d) =>
-        d.avatar ? `url(#avatar-${d.steamid})` : d.isSelf ? '#ff9900' : '#4c6a8a'
+        d.avatar ? `url(#avatar${d.steamid})` : d.isSelf ? '#ff9900' : '#4c6a8a'
       )
       .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#1b2838'))
       .attr('stroke-width', (d) => (d.isSelf ? 2 : 1))

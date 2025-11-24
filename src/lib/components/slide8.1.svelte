@@ -13,12 +13,12 @@
     <div class="row">
         <div class="left">
         <div class="genre">{g.genre}</div>
-        <div class="meta">
+        <div class="gegevens">
             {g.count} game{g.count === 1 ? '' : 's'} •
             {formatCurrency(g.value)} • {g.percentage}%
         </div>
         </div>
-        <div class="bar-wrap">
+        <div class="barWrap">
         <div class="bar" style={`width: ${g.percentage}%;`}></div>
         </div>
     </div>
@@ -51,12 +51,12 @@
     color: #1b2838;
   }
 
-  .meta {
+  .gegevens {
     font-size: 0.8rem;
     color: #1b2838;
   }
 
-  .bar-wrap {
+  .barWrap {
     background: #1b2838;
     border-radius: 999px;
     overflow: hidden;
