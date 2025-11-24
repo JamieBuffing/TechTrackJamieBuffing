@@ -1,6 +1,15 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import * as d3 from 'd3';
+  import { onMount } from 'svelte';
+
+  let d3Promise;
+
+  const loadD3 = () => {
+    if (!d3Promise) {
+      d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+    }
+
+    return d3Promise;
+  };
 
   export let data = []; // [{ appid, name, hours }]
   export let width = 700;
@@ -9,10 +18,12 @@
   let svgEl;
   let cleanup = () => {};
 
-  function draw() {
+  async function draw() {
     if (!svgEl || !data || !data.length) {
       return;
     }
+
+    const d3 = await loadD3()
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
@@ -114,8 +125,10 @@
     };
   }
 
-  onMount(draw);
-  onDestroy(() => cleanup());
+  onMount(() => {
+    draw();
+    return () => cleanup();
+  });
 
   // redrawing bij dataverandering
   $: data && data.length && draw();

@@ -102,7 +102,7 @@
   {:else}
     <div class="summary">
       <div class="summary-block big">
-        <div class="label">Geschatte waarde (subset)</div>
+        <div class="label">Geschatte waarde</div>
         <div class="value">{formatCurrency(totalValue)}</div>
         <div class="note">
           Gebaseerd op ongeveer {gamesPricedCount} games met prijsinformatie
