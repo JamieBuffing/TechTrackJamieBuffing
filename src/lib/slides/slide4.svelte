@@ -191,21 +191,21 @@
         <div class="right">
           <h3>{selectedGameName}</h3>
 
-          <div class="ach-section">
+          <div class="achievementsSection">
             <h4>Gehaald ({unlocked.length})</h4>
             {#if unlocked.length === 0}
-              <p class="muted">Nog geen achievements unlocked.</p>
+              <p class="verborgen">Nog geen achievements unlocked.</p>
             {:else}
-              <ul class="ach-list">
+              <ul class="achievementsList">
                 {#each unlocked as a}
                   <li>
                     {#if a.icon}
-                      <img src={a.icon} alt="" class="ach-icon" />
+                      <img src={a.icon} alt="" class="achievementsIcon" />
                     {/if}
-                    <div class="ach-text">
-                      <div class="ach-name">{a.displayName}</div>
+                    <div class="achievementsTekst">
+                      <div class="achievementsName">{a.displayName}</div>
                       {#if a.description}
-                        <div class="ach-desc">{a.description}</div>
+                        <div class="achievementsDesc">{a.description}</div>
                       {/if}
                     </div>
                   </li>
@@ -214,21 +214,21 @@
             {/if}
           </div>
 
-          <div class="ach-section">
+          <div class="achievementsSection">
             <h4>Nog niet gehaald ({locked.length})</h4>
             {#if locked.length === 0}
-              <p class="muted">Alles gehaald! 🔥</p>
+              <p class="verborgen">Alles gehaald! 🔥</p>
             {:else}
-              <ul class="ach-list">
+              <ul class="achievementsList">
                 {#each locked as a}
                   <li class="locked">
                     {#if a.icongray}
-                      <img src={a.icongray} alt="" class="ach-icon" />
+                      <img src={a.icongray} alt="" class="achievementsIcon" />
                     {/if}
-                    <div class="ach-text">
-                      <div class="ach-name">{a.displayName}</div>
+                    <div class="achievementsTekst">
+                      <div class="achievementsName">{a.displayName}</div>
                       {#if a.description}
-                        <div class="ach-desc">{a.description}</div>
+                        <div class="achievementsDesc">{a.description}</div>
                       {/if}
                     </div>
                   </li>
@@ -239,7 +239,7 @@
         </div>
       </div>
     {:else}
-      <p class="muted">Kies een game om je achievement-progress te zien.</p>
+      <p class="verborgen">Kies een game om je achievement-progress te zien.</p>
     {/if}
   {/if}
 </div>
@@ -284,15 +284,15 @@
     margin-top: 0;
   }
 
-  .ach-section {
+  .achievementsSection {
     margin-top: 1rem;
   }
 
-  .ach-section h4 {
+  .achievementsSection h4 {
     margin-bottom: 0.4rem;
   }
 
-  .ach-list {
+  .achievementsList {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -303,7 +303,7 @@
     overflow-y: auto;
   }
 
-  .ach-list li {
+  .achievementsList li {
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -312,33 +312,33 @@
     background: #171a21e6;
   }
 
-  .ach-list li.locked {
+  .achievementsList li.locked {
     opacity: 0.7;
   }
 
-  .ach-icon {
+  .achievementsIcon {
     width: 32px;
     height: 32px;
     border-radius: 0.2rem;
   }
 
-  .ach-text {
+  .achievementsTekst {
     display: flex;
     flex-direction: column;
   }
 
-  .ach-name {
+  .achievementsName {
     font-size: 0.9rem;
     font-weight: 600;
     color: #c7d5e0;
   }
 
-  .ach-desc {
+  .achievementsDesc {
     font-size: 0.8rem;
     color: #c7d5e0;
   }
 
-  .muted {
+  .verborgen {
     font-size: 0.85rem;
     color: #c7d5e0;
   }

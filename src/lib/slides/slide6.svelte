@@ -186,17 +186,17 @@
       <p class="error">{achError}</p>
     {:else if achData}
       <div class="summary">
-        <div class="summary-item">
-          <div class="summary-label">Totaal</div>
-          <div class="summary-value">{achData.total}</div>
+        <div class="summaryItem">
+          <div class="summaryLabel">Totaal</div>
+          <div class="summaryValue">{achData.total}</div>
         </div>
-        <div class="summary-item">
-          <div class="summary-label">Gehaald</div>
-          <div class="summary-value">{achData.unlocked}</div>
+        <div class="summaryItem">
+          <div class="summaryLabel">Gehaald</div>
+          <div class="summaryValue">{achData.unlocked}</div>
         </div>
-        <div class="summary-item">
-          <div class="summary-label">Percentage</div>
-          <div class="summary-value">{achData.percentage}%</div>
+        <div class="summaryItem">
+          <div class="summaryLabel">Percentage</div>
+          <div class="summaryValue">{achData.percentage}%</div>
         </div>
       </div>
 
@@ -254,20 +254,20 @@
     margin-bottom: 0.75rem;
   }
 
-  .summary-item {
+  .summaryItem {
     background: #171a21;
     border-radius: 0.6rem;
     padding: 0.75rem 1rem;
     min-width: 120px;
   }
 
-  .summary-label {
+  .summaryLabel {
     font-size: 0.8rem;
     color: #c7d5e0;
     margin-bottom: 0.25rem;
   }
 
-  .summary-value {
+  .summaryValue {
     font-size: 1.1rem;
     font-weight: 600;
     color: #c7d5e0;

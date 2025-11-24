@@ -77,7 +77,7 @@ export async function getStoreDetails(fetch, appid, { includePrice = true, inclu
 
   const res = await fetch(url);
 
-  // 403 / 429 → Steam blokkeert / rate-limiet → game overslaan ipv alles slopen
+  // 403 / 429 | Steam blokkeert / rate-limiet | game overslaan ipv alles slopen
   if (res.status === 403 || res.status === 429) {
     console.warn('[Store appdetails] blocked for appid', appid, res.status);
     return null;
