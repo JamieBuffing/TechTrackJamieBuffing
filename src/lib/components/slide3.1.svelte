@@ -1,4 +1,4 @@
-<!-- src/lib/components/slide3.1.svelte -->
+<!-- src/lib/components/slide3.1 -->
 <script>
   // data: [{ genre, hours, percentage, games: [{ name, hours }] }]
   export let data = [];

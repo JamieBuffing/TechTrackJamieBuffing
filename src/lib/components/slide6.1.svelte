@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide6.1 -->
 <script>
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';

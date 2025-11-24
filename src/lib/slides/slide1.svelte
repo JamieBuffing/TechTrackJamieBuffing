@@ -1,4 +1,4 @@
-<!-- src/lib/slides/Slide1.svelte -->
+<!-- src/lib/slides/slide1 -->
 <script>
   import { createEventDispatcher } from 'svelte';   // svelte component 
   import { goto } from '$app/navigation';          // svelte functie om later naar een ander bestand of route te wijzen
