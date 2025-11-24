@@ -42,9 +42,6 @@
             <div class="badge">
               Hidden gem score: <strong>{g.gemScore}/100</strong>
             </div>
-            <p class="hint">
-              Score gebaseerd op Steam-rating, aantal reviews en hoe weinig je het zelf hebt gespeeld.
-            </p>
           </div>
         </div>
       </div>
@@ -119,12 +116,6 @@
     border: 1px solid #66c0f4;
     color: #66c0f4;
     font-size: 0.8rem;
-  }
-
-  .hint {
-    margin: 0.2rem 0 0;
-    font-size: 0.8rem;
-    color: #c7d5e0;
   }
 
   @media (max-width: 640px) {
