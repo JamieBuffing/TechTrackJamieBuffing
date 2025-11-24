@@ -5,7 +5,7 @@ De app vertelt jouw persoonlijke “Steam Story” aan de hand van grafieken, st
 
 👉 Live versie: **https://www.jamiebuffing.nl/**
 
-> Dit project is gemaakt als schoolopdracht voor de Hogeschool van Amsterdam (HvA). :contentReference[oaicite:0]{index=0}  
+> Dit project is gemaakt als schoolopdracht voor de Hogeschool van Amsterdam (HvA). 
 
 ---
 
@@ -27,17 +27,17 @@ De app vertelt jouw persoonlijke “Steam Story” aan de hand van grafieken, st
 
 De applicatie draait live op Vercel:
 
-- 🌐 **Productie:** https://www.jamiebuffing.nl/ :contentReference[oaicite:1]{index=1}  
+- 🌐 **Productie:** https://www.jamiebuffing.nl/ 
 
 Op de eerste slide kun je:
 - Inloggen met je eigen **Steam-account** (via Steam OpenID), of  
-- Één van de **preset accounts** kiezen om de visualisaties te bekijken. :contentReference[oaicite:2]{index=2}  
+- Één van de **preset accounts** kiezen om de visualisaties te bekijken.
 
 ---
 
 ## Over dit project
 
-**Steam Story** haalt jouw Steam-data op via officiële Steam API’s en zet die om in interactieve visualisaties. Het doel is om op een speelse manier inzicht te geven in: :contentReference[oaicite:3]{index=3}  
+**Steam Story** haalt jouw Steam-data op via officiële Steam API’s en zet die om in interactieve visualisaties. Het doel is om op een speelse manier inzicht te geven in:
 
 - Welke games je het meest speelt  
 - Hoe jouw speeltijd verdeeld is over genres  
@@ -46,7 +46,7 @@ Op de eerste slide kun je:
 - De waarde en omvang van je gamebibliotheek  
 - Een soort “speeluniversum” om jouw profiel mooi af te sluiten
 
-De wiki in deze repo beschrijft het hele proces van idee tot uitvoering, inclusief API-keuzes, ontwerpkeuzes, coding standards, onderzoek en AI-gebruik. :contentReference[oaicite:4]{index=4}  
+De wiki in deze repo beschrijft het hele proces van idee tot uitvoering, inclusief API-keuzes, ontwerpkeuzes, coding standards, onderzoek en AI-gebruik.
 
 👉 Meer achtergrond: zie de [GitHub Wiki](https://github.com/JamieBuffing/TechTrackJamieBuffing/wiki).
 
@@ -54,20 +54,20 @@ De wiki in deze repo beschrijft het hele proces van idee tot uitvoering, inclusi
 
 ## Functionaliteiten & slides
 
-De app bestaat uit 9 slides die samen jouw verhaal vertellen. Deze slides worden dynamisch geladen in `src/routes/+page.svelte`. :contentReference[oaicite:5]{index=5}  
+De app bestaat uit 9 slides die samen jouw verhaal vertellen. Deze slides worden dynamisch geladen in `src/routes/+page.svelte`.
 
 ### Slide 1 – Start
 
 - Welkomstscherm voor “Jouw Steam Story”
 - Login met Steam (OpenID) of kies een preset account
-- Standaard staat er één eigen account geselecteerd voor het project :contentReference[oaicite:6]{index=6}  
+- Standaard staat er één eigen account geselecteerd voor het project
 
 ### Slide 2 – Top games
 
 - Haalt je meest gespeelde games op
 - Toont:
   - Staafdiagram met speeltijd per game
-  - Donutdiagram met de verdeling van je totale speeltijd over je topgames :contentReference[oaicite:7]{index=7}  
+  - Donutdiagram met de verdeling van je totale speeltijd over je topgames
 
 ### Slide 3 – Genres
 
@@ -104,7 +104,7 @@ De app bestaat uit 9 slides die samen jouw verhaal vertellen. Deze slides worden
 - Een afsluitende visualisatie (“universum”) die jouw Steam Story rond maakt
 - Meer conceptueel/visueel, minder tabel-achtig
 
-De precieze data per slide is beschreven in de wiki-pagina **“Het werken met de data”**. :contentReference[oaicite:8]{index=8}  
+De precieze data per slide is beschreven in de wiki-pagina **“Het werken met de data”**.
 
 ---
 
@@ -112,7 +112,7 @@ De precieze data per slide is beschreven in de wiki-pagina **“Het werken met d
 
 **Frontend & framework**
 
-- [SvelteKit](https://kit.svelte.dev/) (Svelte 5 + Vite) :contentReference[oaicite:9]{index=9}  
+- [SvelteKit](https://kit.svelte.dev/) (Svelte 5 + Vite) 
 - [D3.js](https://d3js.org/) voor datavisualisaties
 - Vite als bundler/dev server
 
@@ -130,7 +130,7 @@ De precieze data per slide is beschreven in de wiki-pagina **“Het werken met d
 
 **Externe API’s**
 
-Er worden drie officiële Steam-endpoints gebruikt: :contentReference[oaicite:10]{index=10}  
+Er worden drie officiële Steam-endpoints gebruikt:
 
 - `https://api.steampowered.com` – Steam Web API (vereist **STEAM_API_KEY**)  
 - `https://store.steampowered.com/api/` – openbare Store API (met limieten)  
@@ -138,7 +138,7 @@ Er worden drie officiële Steam-endpoints gebruikt: :contentReference[oaicite:10
 
 **Deploy**
 
-- De app wordt gehost op **Vercel** (SvelteKit-adapter). :contentReference[oaicite:11]{index=11}  
+- De app wordt gehost op **Vercel** (SvelteKit-adapter). 
 
 ---
 
@@ -159,7 +159,7 @@ Er worden drie officiële Steam-endpoints gebruikt: :contentReference[oaicite:10
 - `src/lib/server/steamApi.js`  
   Wrapper rond de Steam API’s met o.a.:
   - `STEAM_API_KEY` en `DEFAULT_STEAM_ID` uit environment variables  
-  - Helpers voor profielgegevens, games, store details, etc. :contentReference[oaicite:12]{index=12}  
+  - Helpers voor profielgegevens, games, store details, etc.
 
 - `src/lib/components/`  
   D3-componenten per slide (bijvoorbeeld de bar chart en donut chart voor je topgames).
