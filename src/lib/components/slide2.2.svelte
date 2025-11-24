@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide2.2 -->
 <script>
   import { onDestroy, onMount } from 'svelte';
 

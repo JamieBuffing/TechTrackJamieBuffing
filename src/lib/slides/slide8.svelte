@@ -1,3 +1,4 @@
+<!-- srs/lib/slides/slide8 -->
 <script>
   import { browser } from '$app/environment';
   import LibraryValueChart from '$lib/components/slide8.1.svelte';

@@ -1,3 +1,4 @@
+<!-- srs/lib/slides/slide9 -->
 <script>
   import { browser } from '$app/environment';
   import SteamBubbleGalaxy from '$lib/components/slide9.1.svelte';
