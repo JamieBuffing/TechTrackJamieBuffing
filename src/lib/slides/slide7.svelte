@@ -60,7 +60,7 @@
 </script>
 
 <div class="slide7">
-  <h2>Hidden gems in je library</h2>
+  <h2>Vergeten glory in je library</h2>
 
   {#if !steamId}
     <p>Geen SteamID geselecteerd. Ga terug naar slide 1 om een account te kiezen.</p>

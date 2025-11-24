@@ -156,7 +156,7 @@
   .panel {
     border-radius: 0.75rem;
     padding: 1rem 1.25rem;
-    background: #171a21;
+    background: radial-gradient(circle at top, #1b2838 0%, #0b1015 60%, #050608 100%);
     color: #c7d5e0;
   }
 
@@ -189,32 +189,6 @@
     background: #66c0f4;
     border-color: #66c0f4;
     color: #171a21;
-  }
-
-  .btn {
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-  }
-
-  .btn.steam {
-    background: #171a21;
-    color: #c7d5e0;
-    border: 1px solid #66c0f4;
-  }
-
-  .btn.start {
-    background: #66c0f4;
-    color: #171a21;
-    min-width: 200px;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: default;
   }
 
   .start-panel {
