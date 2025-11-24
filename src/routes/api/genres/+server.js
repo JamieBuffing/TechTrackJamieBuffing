@@ -2,6 +2,7 @@
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames, getStoreDetails } from '$lib/server/steamApi.js';
 
+// Zoek de genres op
 export async function GET({ url, fetch }) {
   try {
     const steamid = resolveSteamId(url);
@@ -9,8 +10,10 @@ export async function GET({ url, fetch }) {
       return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
     }
 
+    // Sla alles games op die de gebruiker heeft
     const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true });
 
+    // Als er geen games zijn dan....
     if (!games.length) {
       return json({
         steamid,
@@ -19,8 +22,10 @@ export async function GET({ url, fetch }) {
       });
     }
 
+    // Filter ze op speeltijd meer dan een minuut
     const played = games.filter((g) => (g.playtime_forever || 0) > 0);
 
+    // Als dat er 0 zijn dan....
     if (!played.length) {
       return json({
         steamid,
@@ -30,11 +35,15 @@ export async function GET({ url, fetch }) {
     }
 
     const genreMap = new Map();
+
+    // Bekijk de totale speeltijd van alles games
     const totalMinutes = played.reduce(
       (sum, g) => sum + (g.playtime_forever || 0),
       0
     );
 
+    // Groepeer gespeelde games per genre en tel de totale gespeelde uren,
+    // plus een lijst van games met hun individuele speeltijd.
     await Promise.all(
       played.map(async (g) => {
         const details = await getStoreDetails(fetch, g.appid, {
@@ -62,6 +71,7 @@ export async function GET({ url, fetch }) {
       })
     );
 
+    // Als er geen info is opgeslagen dan....
     if (!genreMap.size) {
       return json({
         steamid,
@@ -71,8 +81,11 @@ export async function GET({ url, fetch }) {
       });
     }
 
+    // De totale speeltijd in uren
     const totalHours = totalMinutes / 60;
 
+    // Bouw een lijst van genres met totale uren, percentage van totale speeltijd,
+    // en de top 15 meest gespeelde games per genre (gesorteerd op uren).
     let categoryList = [...genreMap.entries()].map(([genre, info]) => {
       const genreHours = info.hours;
       const percentage = totalHours
@@ -95,10 +108,14 @@ export async function GET({ url, fetch }) {
       };
     });
 
+    // Sorteer de genres op speeltijd en pak de grootste 12
     categoryList = categoryList
       .sort((a, b) => b.hours - a.hours)
       .slice(0, 12);
+    
+    // Geef deze data terug
     return json({ steamid, genres: categoryList });
+    // En vang mogelijke errors op
   } catch (e) {
     console.error(e);
     return json({ error: 'Failed to load genres' }, { status: 500 });

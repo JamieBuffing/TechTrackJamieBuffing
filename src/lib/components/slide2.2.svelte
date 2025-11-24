@@ -131,7 +131,7 @@
           .html(`
             <strong>${d.name}</strong><br/>
             ${hours} uur ${minutes} min<br/>
-            ~${pct}% van speeltijd in deze top
+            ~${pct}% van speeltijd in deze top 5
           `);
       })
       .on('mousemove', (event) => {
