@@ -102,7 +102,7 @@
     <p class="error">{error}</p>
   {:else}
     <div class="summary">
-      <div class="summary-block big">
+      <div class="summaryBlock big">
         <div class="label">Geschatte waarde</div>
         <div class="value">{formatCurrency(totalValue)}</div>
         <div class="note">
@@ -130,7 +130,7 @@
         <p class="hint">
           Dit zijn de games met de hoogste huidige store-prijs in de subset die is opgehaald.
         </p>
-        <table class="games-table">
+        <table class="gamesTable">
           <thead>
             <tr>
               <th>Game</th>
@@ -166,14 +166,14 @@
     gap: 1rem;
   }
 
-  .summary-block {
+  .summaryBlock {
     background: #171a21;
     border-radius: 0.75rem;
     border: 1px solid #2a475e;
     padding: 0.75rem 1rem;
   }
 
-  .summary-block.big {
+  .summaryBlock.big {
     flex: 1 1 260px;
   }
 
@@ -207,26 +207,26 @@
     color: #1b2838;
   }
 
-  .games-table {
+  .gamesTable {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.85rem;
     margin-top: 0.25rem;
   }
 
-  .games-table th,
-  .games-table td {
+  .gamesTable th,
+  .gamesTable td {
     padding: 0.35rem 0.5rem;
     border-bottom: 1px solid #2a475e;
   }
 
-  .games-table th {
+  .gamesTable th {
     text-align: left;
     font-weight: 500;
     color: #1b2838;
   }
 
-  .games-table td {
+  .gamesTable td {
     color: #1b2838;
   }
 

@@ -40,7 +40,7 @@
 
     tooltipEl = rootSelection
       .append('div')
-      .attr('class', 'tooltip top-games-tooltip')
+      .attr('class', 'tooltip topGamesTooltip')
       .style('position', 'fixed')
       .style('pointer-events', 'none')
       .style('background', 'rgba(0, 0, 0, 0.85)')

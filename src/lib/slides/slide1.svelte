@@ -1,32 +1,31 @@
 <!-- src/lib/slides/slide1 -->
 <script>
-  import { createEventDispatcher } from 'svelte';   // svelte component 
-  import { goto } from '$app/navigation';          // svelte functie om later naar een ander bestand of route te wijzen
-  import { presetSteamIds } from '$lib/presetSteamIds.js'; // Dit zijn de presets id's voor als je niet wilt inloggen
+  import { createEventDispatcher } from 'svelte';
+  import { goto } from '$app/navigation';      
+  import { presetSteamIds } from '$lib/presetSteamIds.js'; 
 
-  export let steamId = '';  // Hier komt het gekozen steamid in
+  export let steamId = '';  
 
   const dispatch = createEventDispatcher();
 
-  let loadingProfile = false;  // bezig met checken van profiel?
-  let profileError = '';       // melding als profiel niet public is of niet geladen kan worden
+  let loadingProfile = false;
+  let profileError = '';   
 
   function selectPreset(id) {
-    steamId = id;          // de eerder aangemaakt let wordt ingevuld met id dat komt uit het aanroepen van de functie
-    profileError = '';     // oude foutmelding opruimen bij nieuw account
+    steamId = id;         
+    profileError = '';  
   }
 
   function loginWithSteam() {
-    goto('/auth/steam');   // de route om in te loggen
+    goto('/auth/steam');  
   }
 
   function logout() {
-    steamId = '';          // dit leegt de variable weer
-    profileError = '';     // foutmeldingen opruimen
-    goto('/');             // URL opschonen / Home pagina herladen
+    steamId = '';         
+    profileError = '';   
+    goto('/');
   }
 
-  // Controleer of het profiel public is, en ga dan pas door
   async function startStory() {
     if (!steamId || loadingProfile) return;
 
@@ -45,8 +44,6 @@
       const player = data?.player;
       const visibility = player?.communityvisibilitystate;
 
-      // Steam visibility:
-      // 1 = Private, 2 = Friends Only, 3 = Public
       if (visibility !== 3) {
         if (visibility === 1 || visibility === 2) {
           profileError =
@@ -55,10 +52,9 @@
           profileError =
             'Je Steam-profiel is niet (volledig) zichtbaar. Controleer je privacy-instellingen.';
         }
-        return; // NIET door naar de volgende slide
+        return; 
       }
 
-      // Alles ok → parent zet dan activeSlide = 1
       dispatch('start');
     } catch (err) {
       console.error(err);
@@ -70,7 +66,6 @@
 </script>
 
 
-<!-- ---------- De pagina content (Voor slide 1) ---------- -->
 <div class="slide1">
   <h1>Welkom bij jouw Steam Story</h1>
   <p>
@@ -80,8 +75,7 @@
   </p>
 
   {#if steamId}
-    <!-- Steam id aanwezig =  Welkom met logout -->
-    <div class="panel login-panel">
+    <div class="panel loginPanel">
       <h2>Welkom!</h2>
       <p class="hint">
         Je bent ingelogd met SteamID: <strong>{steamId}</strong>
@@ -91,8 +85,7 @@
       </button>
     </div>
   {:else}
-    <!-- Geen steam id = login met steamknop -->
-    <div class="panel login-panel">
+    <div class="panel loginPanel">
       <h2>Login met Steam</h2>
       <button class="btn steam" type="button" on:click={loginWithSteam}>
         Login met Steam
@@ -103,12 +96,11 @@
     </div>
   {/if}
 
-  <div class="panel presets-panel">
+  <div class="panel presetsPanel">
     <h2>Of kies een preset account</h2>
 
-    <div class="preset-list">
+    <div class="presetList">
       {#each presetSteamIds as p}
-        <!-- For each van svelte -->
         <button
           type="button"
           class="preset {steamId === p.id ? 'active' : ''}"
@@ -120,7 +112,7 @@
     </div>
   </div>
 
-  <div class="start-panel">
+  <div class="startPanel">
     <button
       type="button"
       class="btn start"
@@ -160,15 +152,15 @@
     color: #c7d5e0;
   }
 
-  .login-panel {
+  .loginPanel {
     border: 1px solid #2a475e;
   }
 
-  .presets-panel {
+  .presetsPanel {
     border: 1px solid #2a475e;
   }
 
-  .preset-list {
+  .presetList {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -191,7 +183,7 @@
     color: #171a21;
   }
 
-  .start-panel {
+  .startPanel {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;

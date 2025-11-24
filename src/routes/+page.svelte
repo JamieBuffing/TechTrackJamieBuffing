@@ -62,11 +62,11 @@
   }
 </script>
 
-<nav class="story-bar">
+<nav class="storyBar">
   {#each Array(totalSlides) as _, i}
     <button
       type="button"
-      class="story-segment"
+      class="storySegment"
       class:active={activeSlide === i}
       aria-label={`Ga naar slide ${i + 1}`}
       on:click={() => goTo(i)}
@@ -74,17 +74,17 @@
   {/each}
 </nav>
 
-<main class="story-container">
-  <header class="story-header">
+<main class="storyContainer">
+  <header class="storyHeader">
     <h1>Jouw Steam Story</h1>
-    <p class="story-subtitle">
+    <p class="storySubtitle">
       Slide {activeSlide + 1} van {totalSlides} — {slides[activeSlide].label}
     </p>
   </header>
 
   <!-- 🔑 HIER het belangrijkste verschil:
        alleen de *actieve* slide wordt gemount -->
-  <section class="story-slide">
+  <section class="storySlide">
     <svelte:component
       this={CurrentSlide}
       bind:steamId
@@ -93,7 +93,7 @@
     />
   </section>
 
-  <footer class="story-footer">
+  <footer class="storyFooter">
     <button class="btn navigation" type="button" on:click={prev} disabled={activeSlide === 0}>
       ◀ Vorige
     </button>
@@ -114,13 +114,13 @@
 </main>
 
 <style>
-  .story-bar {
+  .storyBar {
     display: flex;
     gap: 0.25rem;
     margin-bottom: 1rem;
   }
 
-  .story-segment {
+  .storySegment {
     flex: 1;
     height: 10px;
     border-radius: 999px;
@@ -129,11 +129,11 @@
     cursor: pointer;
   }
 
-  .story-segment.active {
+  .storySegment.active {
     background: #66c0f4;
   }
 
-  .story-container {
+  .storyContainer {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -141,23 +141,23 @@
     overflow-y: auto;
   }
 
-  .story-header h1 {
+  .storyHeader h1 {
     margin: 0;
     font-size: 1.4rem;
     color: #171a21;
   }
 
-  .story-subtitle {
+  .storySubtitle {
     margin: 0.25rem 0 0;
     font-size: 0.9rem;
     color: #171a21;
   }
 
-  .story-slide {
+  .storySlide {
     margin-top: 0.5rem;
   }
 
-  .story-footer {
+  .storyFooter {
     margin-top: 1rem;
     display: flex;
     justify-content: space-between;
@@ -166,7 +166,7 @@
     color: #171a21;
   }
 
-  .story-footer button[disabled] {
+  .storyFooter button[disabled] {
     opacity: 0.5;
     cursor: default;
   }

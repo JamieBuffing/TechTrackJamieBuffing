@@ -31,30 +31,30 @@
 
 <div class="genres">
   {#each data as g}
-    <div class="genre-row">
+    <div class="genreRow">
       <div class="left">
         <div class="icon">{getIcon(g.genre)}</div>
         <div class="text">
-          <div class="genre-name">{g.genre}</div>
+          <div class="genreName">{g.genre}</div>
           <div class="meta">
             {formatHours(g.hours)} • {g.percentage}%
           </div>
         </div>
       </div>
 
-      <div class="bar-wrap">
+      <div class="barWrap">
         <div class="bar" style={`width: ${g.percentage}%;`}></div>
       </div>
 
       <!-- Tooltip met games binnen deze categorie -->
       {#if g.games && g.games.length}
         <div class="tooltip">
-          <div class="tooltip-title">Games in {g.genre}</div>
+          <div class="tooltipTitle">Games in {g.genre}</div>
           <ul>
             {#each g.games as game}
               <li>
-                <span class="game-name">{game.name}</span>
-                <span class="game-hours">{formatHours(game.hours)}</span>
+                <span class="gameName">{game.name}</span>
+                <span class="gameHours">{formatHours(game.hours)}</span>
               </li>
             {/each}
           </ul>
@@ -72,7 +72,7 @@
     position: relative;
   }
 
-  .genre-row {
+  .genreRow {
     /* position: relative; */
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 4fr);
@@ -85,7 +85,7 @@
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.1s ease;
   }
 
-  .genre-row:hover {
+  .genreRow:hover {
     border-color: #66c0f4;
     background: #171a21;
     transform: translateY(-1px);
@@ -110,7 +110,7 @@
     min-width: 0;
   }
 
-  .genre-name {
+  .genreName {
     font-size: 0.95rem;
     font-weight: 500;
     color: #c7d5e0;
@@ -124,7 +124,7 @@
     color: #c7d5e0;
   }
 
-  .bar-wrap {
+  .barWrap {
     background: #1b2838;
     border-radius: 999px;
     overflow: hidden;
@@ -156,7 +156,7 @@
     z-index: 20;
   }
 
-  .tooltip-title {
+  .tooltipTitle {
     font-weight: 500;
     margin-bottom: 0.2rem;
   }
@@ -175,28 +175,22 @@
     padding: 0.05rem 0;
   }
 
-  .game-name {
+  .gameName {
     flex: 1 1 auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .game-hours {
+  .gameHours {
     flex-shrink: 0;
     white-space: nowrap;
     color: #66c0f4;
   }
 
-  .genre-row:hover .tooltip {
+  .genreRow:hover .tooltip {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
-  }
-
-  @media (max-width: 640px) {
-    .genre-row {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

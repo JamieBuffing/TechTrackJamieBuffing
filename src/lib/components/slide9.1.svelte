@@ -135,10 +135,10 @@
   $: data && data.length && draw();
 </script>
 
-<svg bind:this={svgEl} class="steam-bubble-galaxy" role="img" aria-label="Steam speelgedrag bubbelvisualisatie"></svg>
+<svg bind:this={svgEl} class="steamBubbleGalaxy" role="img" aria-label="Steam speelgedrag bubbelvisualisatie"></svg>
 
 <style>
-  .steam-bubble-galaxy {
+  .steamBubbleGalaxy {
     max-width: 100%;
     display: block;
     background: radial-gradient(circle at top, #1b2838 0%, #0b1015 60%, #050608 100%);
