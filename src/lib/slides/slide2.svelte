@@ -1,3 +1,4 @@
+<!-- srs/lib/slides/slide2 -->
 <script>
   import { browser } from '$app/environment';   // geeft true terug als de app in de browser runt
   import TopGamesDonutChart from '$lib/components/slide2.1.svelte';   // Donut chart

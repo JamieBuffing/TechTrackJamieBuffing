@@ -1,3 +1,4 @@
+<!-- srs/lib/components/slide7.1 -->
 <script>
   export let data = [];
 
