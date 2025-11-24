@@ -149,6 +149,7 @@
 
 <div class="slide4">
   <h2>Achievement progress</h2>
+  <h3>Voor jouw top 5 games</h3>
 
   {#if !steamId}
     <p>Geen SteamID geselecteerd. Ga terug naar slide 1 om een account te kiezen.</p>
@@ -181,7 +182,7 @@
         <div class="left">
           <RadialProgress
             value={achData.percentage}
-            label="Unlocked"
+            label="Gehaald"
             sublabel={`${achData.unlocked} / ${achData.total} achievements`}
           />
         </div>
@@ -190,7 +191,7 @@
           <h3>{selectedGameName}</h3>
 
           <div class="ach-section">
-            <h4>Unlocked ({unlocked.length})</h4>
+            <h4>Gehaald ({unlocked.length})</h4>
             {#if unlocked.length === 0}
               <p class="muted">Nog geen achievements unlocked.</p>
             {:else}
@@ -213,9 +214,9 @@
           </div>
 
           <div class="ach-section">
-            <h4>Locked ({locked.length})</h4>
+            <h4>Nog niet gehaald ({locked.length})</h4>
             {#if locked.length === 0}
-              <p class="muted">Alles unlocked! 🔥</p>
+              <p class="muted">Alles gehaald! 🔥</p>
             {:else}
               <ul class="ach-list">
                 {#each locked as a}

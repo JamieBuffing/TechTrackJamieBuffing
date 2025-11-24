@@ -80,9 +80,9 @@
   <!-- Anders als dus alles goed gaat -->
   {:else}
     <p class="intro">
-      Dit is een overzicht van je belangrijkste genres/categorieën op basis van
-      de <strong>voornaamste categorie per game</strong>. Alle speeltijd van een game
-      wordt toegewezen aan die hoofdcategorie.
+      Dit is een overzicht van je belangrijkste genres op basis van
+      de <strong>eerste genre per game op steam</strong>. Alle speeltijd van een game
+      wordt hieraan gekoppeld.
       Hover over een rij om te zien welke games daar allemaal in zitten.
     </p>
     <!-- Toon de IconChart -->

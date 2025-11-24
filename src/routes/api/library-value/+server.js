@@ -11,9 +11,6 @@ export async function GET({ url, fetch }) {
 
     const games = await getOwnedGames(fetch, steamid, { includeAppInfo: true, includePlayedFreeGames: false });
 
-    console.log(games)
-
-
     if (!games.length) {
       return json({
         steamid,
