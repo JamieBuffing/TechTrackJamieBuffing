@@ -9,18 +9,18 @@
   let error = '';
   let games = [];
 
-  let selectedAppId = '';      // altijd een STRING
+  let selectedAppId = '';
   let selectedGameName = '';
 
   let loadingAchievements = false;
   let achError = '';
   let achData = null;
 
-  // Cache per steamId voor games en per (steamId, appid) voor achievements
+  // Cache
   const gamesCache = new Map();
   const achCache = new Map();
 
-  // --- GAMES LADEN (met cache) ---
+  // games laden
   async function loadGames() {
     if (!steamId) {
       error = 'Geen SteamID geselecteerd.';
@@ -30,14 +30,14 @@
       return;
     }
 
-    // 1. Eerst cache proberen
+    // check de cache
     const cached = gamesCache.get(steamId);
     if (cached) {
       games = cached.games;
       error = cached.error;
 
       if (games.length > 0) {
-        // ALTIJD eerste game kiezen als standaard
+        // kies de eerste game standaard voor de dropdown en voor het grafiek
         selectedAppId = String(games[0].appid);
         selectedGameName = games[0].name;
       } else {
@@ -47,7 +47,7 @@
       return;
     }
 
-    // 2. Anders echt fetchen
+    // Als er niks in de cache zit
     loadingGames = true;
     error = '';
     games = [];
@@ -64,25 +64,27 @@
         games = json.games || json.topGames || [];
 
         if (games.length > 0) {
-          // ALTIJD eerste game kiezen als standaard
+          // kies de eerste game standaard voor de dropdown en voor het grafiek
           selectedAppId = String(games[0].appid);
           selectedGameName = games[0].name;
         }
       }
+      // Vang mogelijk errors op
     } catch (e) {
       console.error(e);
       error = 'Fout bij het laden van games.';
+      // Als laats na het laden
     } finally {
       gamesCache.set(steamId, { games, error });
       loadingGames = false;
     }
   }
 
-  // --- ACHIEVEMENTS LADEN (met cache) ---
+  // Achievements laden
   async function loadAchievements() {
     if (!steamId || !selectedAppId) return;
 
-    // 1. Cache check
+    // Check eerst de cache
     const key = `${steamId}:${selectedAppId}`;
     const cached = achCache.get(key);
     if (cached) {
@@ -95,6 +97,7 @@
     achError = '';
     achData = null;
 
+    // Anders echt laden
     try {
       const res = await fetch(
         `/api/achievements?steamid=${steamId}&appid=${selectedAppId}`
@@ -118,18 +121,16 @@
     }
   }
 
-  // --- REACTIEVE LOGICA ---
-  // Als steamId verandert => games laden
+  // Als er iets veranderd dan.... (browser of id)
   $: if (browser && steamId) {
     loadGames();
   }
-
-  // Als steamId én selectedAppId er zijn => achievements laden
+    // Als alles er is om de achievements te kunnen gaan laden
   $: if (browser && steamId && selectedAppId) {
     loadAchievements();
   }
 
-  // Gewijzigde selectie uit de dropdown
+  // Wijziging in de dropdown
   function onSelectChange(event) {
     const appid = event.target.value;
     selectedAppId = appid;
@@ -139,6 +140,7 @@
   }
 
   // Afgeleide lijsten voor unlocked/locked
+  // Hier split ik alles op of het gehaald is of niet
   $: unlocked = achData
     ? achData.achievements.filter((a) => a.achieved)
     : [];
@@ -148,6 +150,7 @@
     : [];
 </script>
 
+<!-- De pagina -->
 <div class="slide4">
   <h2>Achievement progress</h2>
   <h3>Voor jouw top 5 games</h3>
@@ -158,14 +161,17 @@
     <div class="controls">
       <label>
         Kies een game:
+        <!-- De dropdown -->
         <select bind:value={selectedAppId} on:change={onSelectChange}>
           {#if loadingGames}
             <option disabled>Games laden…</option>
           {:else if error}
             <option disabled>{error}</option>
+            <!-- Als er geen games zijn -->
           {:else if games.length === 0}
             <option disabled>Geen games gevonden</option>
           {:else}
+            <!-- Voor elke game als g uit de games array -->
             {#each games as g}
               <option value={String(g.appid)}>{g.name}</option>
             {/each}
@@ -174,36 +180,44 @@
       </label>
     </div>
 
+    <!-- Als de achievements aan het laden zijn -->
     {#if loadingAchievements}
       <p>Achievements laden…</p>
     {:else if achError}
       <p class="error">{achError}</p>
+      <!-- Als er achievement data is -->
     {:else if achData}
       <div class="content">
         <div class="left">
+          <!-- Het grafiek -->
           <RadialProgress
             value={achData.percentage}
             label="Gehaald"
             sublabel={`${achData.unlocked} / ${achData.total} achievements`}
           />
         </div>
-
         <div class="right">
+          <!-- Titel van de geselecteerde game -->
           <h3>{selectedGameName}</h3>
-
+          <!-- Sectie: achievements die al gehaald zijn -->
           <div class="achievementsSection">
             <h4>Gehaald ({unlocked.length})</h4>
+            <!-- Als er nog geen achievements unlocked zijn -->
             {#if unlocked.length === 0}
               <p class="verborgen">Nog geen achievements unlocked.</p>
             {:else}
+              <!-- Lijst met gehaalde achievements -->
               <ul class="achievementsList">
                 {#each unlocked as a}
                   <li>
+                    <!-- Icon van de gehaalde achievement (indien beschikbaar) -->
                     {#if a.icon}
                       <img src={a.icon} alt="" class="achievementsIcon" />
                     {/if}
+                    <!-- Tekstuele info over de achievement -->
                     <div class="achievementsTekst">
                       <div class="achievementsName">{a.displayName}</div>
+                      <!-- Beschrijving van de achievement (indien beschikbaar) -->
                       {#if a.description}
                         <div class="achievementsDesc">{a.description}</div>
                       {/if}
@@ -213,20 +227,25 @@
               </ul>
             {/if}
           </div>
-
+          <!-- Sectie: achievements die nog niet gehaald zijn -->
           <div class="achievementsSection">
             <h4>Nog niet gehaald ({locked.length})</h4>
+            <!-- Als alle achievements al gehaald zijn -->
             {#if locked.length === 0}
               <p class="verborgen">Alles gehaald! 🔥</p>
             {:else}
+              <!-- Lijst met nog niet gehaalde achievements -->
               <ul class="achievementsList">
                 {#each locked as a}
                   <li class="locked">
+                    <!-- Grijs icon van de nog niet gehaalde achievement (indien beschikbaar) -->
                     {#if a.icongray}
                       <img src={a.icongray} alt="" class="achievementsIcon" />
                     {/if}
+                    <!-- Tekstuele info over de achievement -->
                     <div class="achievementsTekst">
                       <div class="achievementsName">{a.displayName}</div>
+                      <!-- Beschrijving van de achievement (indien beschikbaar) -->
                       {#if a.description}
                         <div class="achievementsDesc">{a.description}</div>
                       {/if}
@@ -239,10 +258,12 @@
         </div>
       </div>
     {:else}
+      <!-- Uitlegtekst als er nog geen game gekozen is -->
       <p class="verborgen">Kies een game om je achievement-progress te zien.</p>
     {/if}
   {/if}
 </div>
+
 
 <style>
   .slide4 {

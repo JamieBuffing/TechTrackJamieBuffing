@@ -16,22 +16,26 @@
     profileError = '';  
   }
 
+  // Om in te loggen met steam
   function loginWithSteam() {
     goto('/auth/steam');  
   }
 
+  // Om uit te loggen van steam (stiekem geowon een refresh)
   function logout() {
     steamId = '';         
     profileError = '';   
     goto('/');
   }
 
+  // Start story knop om naar de volgende slide te gaan
   async function startStory() {
     if (!steamId || loadingProfile) return;
 
     loadingProfile = true;
     profileError = '';
 
+    // Check het steamid profile
     try {
       const res = await fetch(`/api/profile?steamid=${steamId}`);
 
@@ -65,7 +69,7 @@
   }
 </script>
 
-
+<!-- De pagina -->
 <div class="slide1">
   <h1>Welkom bij jouw Steam Story</h1>
   <p>

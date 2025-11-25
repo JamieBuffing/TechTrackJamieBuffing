@@ -14,8 +14,7 @@
   let genres = [];
   let mostExpensive = [];
 
-  // 🔹 Cache per steamId:
-  // { totalValue, currency, gamesPricedCount, totalOwnedCount, genres, mostExpensive, error }
+  // Cache:
   const cache = new Map();
 
   async function loadLibraryValue() {
@@ -24,7 +23,7 @@
       return;   // En stop met het uitvoeren van de rest van de functie
     }
 
-    // ✅ Cache check
+    // Cache check
     const cached = cache.get(steamId);
     if (cached) {
       totalValue = cached.totalValue;
@@ -67,7 +66,7 @@
       console.error(e);
       error = 'Fout bij het laden van library waarde.';
     } finally {
-      // ✅ Cache updaten
+      // Cache updaten
       cache.set(steamId, {
         totalValue,
         currency,
@@ -91,6 +90,7 @@
   }
 </script>
 
+<!-- En de inhoud van de pagina -->
 <div class="slide8">
   <h2>Waardeverdeling van je library</h2>
 
@@ -100,6 +100,7 @@
     <p>Library waarde laden…</p>
   {:else if error && (!genres || genres.length === 0)}
     <p class="error">{error}</p>
+  <!-- Als alles goed gaat dan wordt alls weergegeven voor de gebruiker -->
   {:else}
     <div class="summary">
       <div class="summaryBlock big">
@@ -120,6 +121,7 @@
           op de store-pagina. Dit zijn de genres van de games waar een actuele
           prijs voor gevonden is.
         </p>
+        <!-- Het Grafiek -->
         <LibraryValueChart data={genres} {currency} />
       </div>
     {/if}
@@ -139,6 +141,7 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Voor elke games (g) uit de array mostExpensive -->
             {#each mostExpensive as g}
               <tr>
                 <td>{g.name}</td>

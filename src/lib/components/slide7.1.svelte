@@ -1,11 +1,14 @@
 <!-- srs/lib/components/slide7.1 -->
 <script>
+  // Data: lijst met games (gems) om te tonen
   export let data = [];
 
+  // Bouwt de URL naar de Steam-cover op basis van appid
   function coverUrl(appid) {
     return `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/capsule_184x69.jpg`;
   }
 
+  // Maakt een tekst van de Steam rating-informatie
   function formatSteamRating(r) {
     if (!r || !r.totalReviews) return 'Geen Steamrating beschikbaar';
     const desc = r.reviewScoreDesc || 'Onbekend';
@@ -15,15 +18,18 @@
     return `${desc} • ${ratio} • ${reviews}`;
   }
 
+  // Formatteert gespeeld aantal uren met 1 decimaal
   function formatHours(h) {
     return `${h.toFixed(1)} u`;
   }
 </script>
 
+<!-- Lijst met hidden gems -->
 <div class="gems">
   {#each data as g}
     <article class="gemCard">
       <div class="topRow">
+        <!-- Gamecover (als laden faalt wordt hij verborgen) -->
         <img
           class="cover"
           src={coverUrl(g.appid)}
@@ -39,6 +45,7 @@
             <span>{formatSteamRating(g.steamRating)}</span>
           </div>
 
+          <!-- Hidden gem score badge -->
           <div class="gemScore">
             <div class="badge">
               Hidden gem score: <strong>{g.gemScore}/100</strong>

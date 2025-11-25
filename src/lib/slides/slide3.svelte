@@ -9,10 +9,12 @@
   let error = ''; 
   let genres = [];
 
-  // 🔹 Cache per steamId: { genres, error }
+  // Cache
   const cache = new Map();
 
+  // Het laden van de genres
   async function loadGenres() {
+    // Geen steamid dan...
     if (!steamId) { 
       error =
         'Geen SteamID geselecteerd. Ga eerst naar slide 1 om een account te kiezen, deze tekst wordt dan op de pagina geladen en dat komt uit de let error';
@@ -20,7 +22,7 @@
       return;
     }
 
-    // ✅ Cache check
+    // Cache checken voor de genres
     const cached = cache.get(steamId);
     if (cached) {
       genres = cached.genres;
@@ -33,7 +35,9 @@
     error = ''; 
     genres = []; 
 
+    // Wel een steamid dan...
     try {  
+      // echt laden van de games
       const res = await fetch(`/api/genres?steamid=${steamId}`);
       const json = await res.json();
 
@@ -49,19 +53,19 @@
       console.error(e);
       error = 'Fout bij het laden van genres.'; 
     } finally { 
-      // ✅ Cache schrijven
+      // Cache schrijven
       cache.set(steamId, { genres, error });
       loading = false; 
     }
   }
 
-  
+  // Als er iets veranderd als de browser of het steamid
   $: if (browser && steamId) {
     loadGenres();
   }
 </script>
 
-
+<!-- De pagina -->
 <div class="slide3">
   <h2>Genre / categorie verdeling</h2>
   {#if !steamId}    
@@ -79,6 +83,7 @@
       wordt hieraan gekoppeld.
       Hover over een rij om te zien welke games daar allemaal in zitten.
     </p>
+    <!-- Het Grafiek -->
     <GenreIconsChart data={genres} />
   {/if}
 </div>

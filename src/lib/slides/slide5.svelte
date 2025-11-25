@@ -10,7 +10,7 @@
   let players = [];    // En om zeker te zijn dat alles netjes blijft zorg ik ook even dat de players array leeg blijft
   let friendsCount = 0;   // Hier wordt opgeslagen hoeveel vrienden de gebruiker heeft
 
-  // 🔹 Cache per steamId: { players, friendsCount, error }
+  // Cache
   const cache = new Map();
 
   async function loadFriendStats() {    // De functie om de vrienden op te halen
@@ -21,7 +21,7 @@
       return;   // En stop met het uitvoeren van de rest van de functie
     }
 
-    // ✅ Cache check
+    // Cache check
     const cached = cache.get(steamId);
     if (cached) {
       players = cached.players;
@@ -53,7 +53,7 @@
       players = [];
       friendsCount = 0;
     } finally {
-      // ✅ Cache updaten
+      // Cache updaten
       cache.set(steamId, { players, friendsCount, error });
       loading = false;
     }
@@ -78,11 +78,13 @@
     <p>Vriendstatistieken laden…</p>
   {:else if error}
     <p class="error">{error}</p>
+    <!-- ALs er geen spelers in de players array zitten -->
   {:else if players.length === 0}
     <p>
       Geen gegevens gevonden. Heb je misschien geen zichtbare vrienden of
       staan hun profielen op privé?
     </p>
+    <!-- Als alles goed gaat dan de tekst weergeven -->
   {:else}
     <p class="intro">
       Elke cirkel is een speler. <br>
@@ -91,7 +93,7 @@
       De grootte van de cirkel laat zien hoeveel iemand recent heeft gespeeld (laatste 2 weken).<br>
       Je kan de bolletjes verplaatsen na 3 seconden keren ze weer terug.
     </p>
-
+    <!-- Het Grafiek -->
     <FriendsScatterPlot data={players} />
 
     <div class="summary">

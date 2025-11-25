@@ -1,28 +1,35 @@
 <!-- srs/lib/components/slide8.1 -->
 <script>
+  // Data: lijst met genres en bijbehorende waarden
   export let data = [];
+  // Valuta voor de weergave (bijv. 'EUR', 'USD')
   export let currency = 'EUR';
 
+  // Formatteert een getal als bedrag met 2 decimalen + valuta
   function formatCurrency(amount) {
     return `${amount.toFixed(2)} ${currency}`;
   }
 </script>
 
+<!-- Genre-overzicht met aantallen, totale waarde en percentage -->
 <div class="genres">
-    {#each data as g}
+  {#each data as g}
     <div class="row">
-        <div class="left">
+      <!-- Linkerkant: tekstuele info -->
+      <div class="left">
         <div class="genre">{g.genre}</div>
         <div class="gegevens">
-            {g.count} game{g.count === 1 ? '' : 's'} •
-            {formatCurrency(g.value)} • {g.percentage}%
+          {g.count} game{g.count === 1 ? '' : 's'} •
+          {formatCurrency(g.value)} • {g.percentage}%
         </div>
-        </div>
-        <div class="barWrap">
+      </div>
+
+      <!-- Rechterkant: horizontale balk met breedte op basis van percentage -->
+      <div class="barWrap">
         <div class="bar" style={`width: ${g.percentage}%;`}></div>
-        </div>
+      </div>
     </div>
-    {/each}
+  {/each}
 </div>
 
 <style>

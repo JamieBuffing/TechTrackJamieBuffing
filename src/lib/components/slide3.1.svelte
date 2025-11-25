@@ -1,8 +1,9 @@
 <!-- src/lib/components/slide3.1 -->
 <script>
-  // data: [{ genre, hours, percentage, games: [{ name, hours }] }]
+  // Data
   export let data = [];
 
+  // Kies een emoji-icoon op basis van de genrenaam
   function getIcon(genre) {
     const g = (genre || '').toLowerCase();
 
@@ -21,17 +22,22 @@
     if (g.includes('survival')) return '🔥';
     if (g.includes('puzzle')) return '🧩';
 
+    // fallback-icoon
     return '🎲';
   }
 
+  // Uren-formaat: 1 decimaal + "u"
   function formatHours(h) {
     return `${h.toFixed(1)} u`;
   }
 </script>
 
+<!-- Hoofdcontainer met alle genres -->
 <div class="genres">
   {#each data as g}
+    <!-- Eén rij voor een genre -->
     <div class="genreRow">
+      <!-- Linkerkant: icoon + tekst -->
       <div class="left">
         <div class="icon">{getIcon(g.genre)}</div>
         <div class="text">
@@ -42,11 +48,12 @@
         </div>
       </div>
 
+      <!-- Rechts: horizontale balk met breedte op basis van percentage -->
       <div class="barWrap">
         <div class="bar" style={`width: ${g.percentage}%;`}></div>
       </div>
 
-      <!-- Tooltip met games binnen deze categorie -->
+      <!-- Tooltip met games binnen deze categorie (wordt zichtbaar bij hover) -->
       {#if g.games && g.games.length}
         <div class="tooltip">
           <div class="tooltipTitle">Games in {g.genre}</div>
@@ -73,7 +80,6 @@
   }
 
   .genreRow {
-    /* position: relative; */
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 4fr);
     gap: 0.75rem;

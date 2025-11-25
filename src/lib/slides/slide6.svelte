@@ -4,36 +4,33 @@
   import { onMount } from 'svelte';
   import AchievementTimelineChart from '$lib/components/slide6.1.svelte';
 
-  let d3Promise; // wordt hier niet meer gebruikt, maar laat ik weg, alles D3 zit in het component
-
   export let steamId = '';
 
   let loadingGames = false;
   let error = '';
   let games = [];
-  let selectedAppId = '';      // altijd als string
+  let selectedAppId = '';
   let selectedGameName = '';
 
   let loadingAchievements = false;
   let achError = '';
   let achData = null;
 
-  // Cache per steamId voor games en per (steamId, appid) voor achievements
+  // Cache
   const gamesCache = new Map();
   const achCache = new Map();
 
-  // --- TOP-GAMES LADEN (met cache) ---
+  //  topGames laden
   async function loadTopGames() {
     if (!browser || !steamId) return;
 
-    // 1. Eerst cache proberen
+    // check de cache
     const cached = gamesCache.get(steamId);
     if (cached) {
       games = cached.games;
       error = cached.error;
 
       if (games.length > 0) {
-        // ALTIJD eerste game selecteren
         selectedAppId = String(games[0].appid);
         selectedGameName = games[0].name;
         await loadAchievements();
@@ -47,7 +44,7 @@
       return;
     }
 
-    // 2. Echt fetchen
+    // Als er niks in de cache zit dan echt ophalen
     loadingGames = true;
     error = '';
     games = [];
@@ -56,6 +53,7 @@
     achData = null;
     achError = '';
 
+    // Hier ophalen en opslaan
     try {
       const res = await fetch(`/api/top-games?steamid=${steamId}`);
       const json = await res.json();
@@ -68,7 +66,7 @@
       games = json.topGames || [];
 
       if (games.length > 0) {
-        // ALTIJD eerste game selecteren
+        // de eerste pakken
         selectedAppId = String(games[0].appid);
         selectedGameName = games[0].name;
         await loadAchievements();
@@ -82,11 +80,11 @@
     }
   }
 
-  // --- ACHIEVEMENTS LADEN (met cache) ---
+  // Achievements laden
   async function loadAchievements() {
     if (!browser || !steamId || !selectedAppId) return;
 
-    // 1. Cache check
+    // eerst cahce check
     const key = `${steamId}:${selectedAppId}`;
     const cached = achCache.get(key);
     if (cached) {
@@ -99,6 +97,7 @@
     achError = '';
     achData = null;
 
+    // Anders echt ophalen
     try {
       const res = await fetch(
         `/api/achievements?steamid=${steamId}&appid=${selectedAppId}`
@@ -120,6 +119,7 @@
       if (game) {
         selectedGameName = game.name;
       }
+      // Vang mogelijke errors op
     } catch (err) {
       console.error(err);
       achError = 'Fout bij het laden van achievements.';
@@ -138,7 +138,7 @@
     loadAchievements();
   }
 
-  // Als steamId verandert => top-games laden
+  // Als steamId verandert dan....
   $: if (browser && steamId) {
     loadTopGames();
   }
@@ -150,6 +150,7 @@
   });
 </script>
 
+<!-- De pagina inhoud -->
 <div class="slide6">
   <h2>Achievement tijdlijn</h2>
   <h3>Voor jouw top 5 games</h3>
@@ -184,6 +185,7 @@
       <p>Achievements laden…</p>
     {:else if achError}
       <p class="error">{achError}</p>
+      <!-- Als er data is gevonden -->
     {:else if achData}
       <div class="summary">
         <div class="summaryItem">
@@ -206,13 +208,8 @@
           verticaal de naam van de achievement. Hover voor details.
         </p>
 
-        <!-- 👇 hier komt nu het losse grafiek-component -->
-        <AchievementTimelineChart
-          {achData}
-          {selectedGameName}
-          {games}
-          {selectedAppId}
-        />
+        <!-- Het Grafiek -->
+        <AchievementTimelineChart {achData} {selectedGameName} {games} {selectedAppId}/>
       </div>
     {:else}
       <p class="hint">Kies een game om je achievement-tijdlijn te zien.</p>

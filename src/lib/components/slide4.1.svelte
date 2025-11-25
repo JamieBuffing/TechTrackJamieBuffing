@@ -1,24 +1,30 @@
 <!-- srs/lib/components/sllide4.1 -->
 <script>
-  export let value = 0; // 0 - 100
+  export let value = 0;
   export let size = 160;
   export let strokeWidth = 14;
   export let label = '';
   export let sublabel = '';
 
+  // Straal van de cirkel op basis van totale grootte en lijndikte
   const radius = (size - strokeWidth) / 2;
+  // Omtrek van de cirkel (voor stroke-dasharray)
   const circumference = 2 * Math.PI * radius;
 
+  // Waarde begrenzen tussen 0 en 100 zodat de cirkel nooit “overloopt”
   $: clamped = Math.max(0, Math.min(100, value));
+  // Stroke-offset berekenen: hoe meer waarde, hoe minder er “overblijft”
   $: offset = circumference - (clamped / 100) * circumference;
 </script>
 
+<!-- Radiale progress-bar als SVG -->
 <svg
   class="radial"
   width={size}
   height={size}
   viewBox={`0 0 ${size} ${size}`}
 >
+  <!-- Achtergrondspoor van de cirkel -->
   <circle
     class="track"
     cx={size / 2}
@@ -26,6 +32,7 @@
     r={radius}
     stroke-width={strokeWidth}
   />
+  <!-- Voortgangscirkel die met stroke-dashoffset gevuld wordt -->
   <circle
     class="progress"
     cx={size / 2}
@@ -35,6 +42,7 @@
     stroke-dasharray={circumference}
     stroke-dashoffset={offset}
   />
+  <!-- Tekst gecentreerd in het midden van de cirkel -->
   <g class="center" transform={`translate(${size / 2}, ${size / 2})`}>
     <text class="value" dy="-0.1em">
       {clamped.toFixed(1)}%

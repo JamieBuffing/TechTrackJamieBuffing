@@ -10,7 +10,7 @@
   let error = ''; 
   let topGames = [];   
 
-  // 🔹 Cache per steamId: { topGames, error }
+  // Cahce
   const cache = new Map();
 
   async function loadTopGames() { 
@@ -21,7 +21,7 @@
       return; 
     }
 
-    // ✅ Probeer eerst cache
+    // Eerst in de cache kijken
     const cached = cache.get(steamId);
     if (cached) {
       topGames = cached.topGames;
@@ -34,7 +34,9 @@
     error = '';
     topGames = []
 
+    // Anders echt laden
     try {
+      // Uit de volgende api route
       const res = await fetch(`/api/top-games?steamid=${steamId}`);
       const json = await res.json();
 
@@ -43,6 +45,7 @@
       } else {   
         topGames = json.topGames || [];  
       }
+      // vang mogelijke errors op
     } catch (e) {  
       console.error(e);
       error =
@@ -52,13 +55,13 @@
       loading = false;
     }
   }
-
+  // Als de browser of het id veranderd
   $: if (browser && steamId) {
     loadTopGames();  
   }
 </script>
 
-
+<!-- de pagina -->
 <div class="slide2">
   <h2>Top 5 meest gespeelde games</h2>
   {#if !steamId}
@@ -69,6 +72,7 @@
     <p class="error">{error}</p>
   {:else if topGames.length === 0}
     <p>Geen games gevonden voor dit account.</p>
+    <!-- als alles goed gaat dan de dingen op de pagina weergeven -->
   {:else}
     <div class="charts">
       <div class="chartBlock">
@@ -77,6 +81,7 @@
       </div>
       <div class="chartBlock">
         <h3>Verdeling speeltijd</h3>
+        <!-- Het Grafiek -->
         <TopGamesDonutChart data={topGames} width={360} height={360} />
       </div>
     </div>

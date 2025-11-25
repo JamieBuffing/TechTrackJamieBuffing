@@ -9,7 +9,7 @@
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
   let gems = [];
 
-  // 🔹 Cache per steamId: { gems, error }
+  // Cache
   const cache = new Map();
 
   async function loadHiddenGems() {
@@ -19,7 +19,7 @@
       return;   // En stop met het uitvoeren van de rest van de functie
     }
 
-    // ✅ Cache check
+    // Cache check
     const cached = cache.get(steamId);
     if (cached) {
       gems = cached.gems;
@@ -68,23 +68,23 @@
 
   {:else if loading}
     <p>Hidden gems zoeken…</p>
-
+  <!-- Als er een error is -->
   {:else if error && (!gems || gems.length === 0)}
     <p class="error">{error}</p>
-
+  <!-- Als er geen games in de gems array zitten -->
   {:else if gems.length === 0}
     <p class="verborgen">
       We konden geen hidden gems vinden. Misschien speel je alles al heel uitgebreid,
       of zijn er weinig games met voldoende reviews.
     </p>
-
+  <!-- Als alles goed gaat dan moet er wat extra info worden weergegeven voor de gebruiker -->
   {:else}
     <p class="intro">
       Dit zijn games die jij relatief weinig hebt gespeeld, maar op Steam een sterke
       beoordeling en/of veel positieve reviews hebben. Hun <strong>hidden gem score</strong>
       combineert reviewscore, populariteit en het feit dat jij ze nog weinig hebt aangeraakt.
     </p>
-
+    <!-- Het Grafiek -->
     <HiddenGemsList data={gems} />
   {/if}
 </div>

@@ -1,29 +1,30 @@
 <!-- srs/lib/components/slide2.1 -->
 <script>
-  import { onMount } from 'svelte';    // Importeer de functies die svelte gebruikt
+  import { onMount } from 'svelte'; // Lifecycle-hook om te tekenen zodra het component gemount is
 
   let d3Promise;
-
   const loadD3 = () => {
     if (!d3Promise) {
       d3Promise = import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
     }
-
     return d3Promise;
   };
 
-  export let data = [];   // Sla hier de data op en exporteer deze zodat het zichtbaar is voor andere bestanden
+  export let data = [];
 
-  export let width = 500;   // Exporteer de breedte
-  export let height = 500;    // Exporteer de hoogte
-  export let innerRadius = Math.min(width, height) / 3.5;   // Exporteer de radius van de binnenkant
-  export let outerRadius = Math.min(width, height) / 2.2;    // Exporteer de radius van de buitenkant
-  export let padAngle = 0.02;     // Ruimte tussen blokken
+  // Basisinstellingen voor grootte en vorm van de donut
+  export let width = 500;
+  export let height = 500;
+  export let innerRadius = Math.min(width, height) / 3.5; // binnenste radius (gat in de donut)
+  export let outerRadius = Math.min(width, height) / 2.2; // buitenste radius
+  export let padAngle = 0.02; // ruimte tussen de segmenten
 
   let svgEl;
   let cleanup = () => {};
 
+  // Tekent / hertekent de donut-chart
   async function draw() {
+    // Vorige render opruimen (svg + tooltip)
     cleanup();
 
     const d3 = await loadD3();
@@ -37,7 +38,7 @@
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
 
-    // Tooltip
+    // Tooltip-element aan <body> hangen, zodat hij boven alles kan zweven
     const tooltipEl = d3
       .select('body')
       .append('div')
@@ -52,13 +53,13 @@
       .style('opacity', 0)
       .style('z-index', 10);
 
-    const totalSum = d3.sum(data, (d) => d.value);
-
+    // Kleurenschaal per segment
     const color = d3
       .scaleOrdinal()
       .domain(data.map((d) => d.name))
       .range(["#1b2838", "#2a475e", "#3b6e8f", "#66c0f4", "#1b9fff"]);
 
+    // Pie-layout voor de donut
     const pie = d3
       .pie()
       .padAngle(padAngle)
@@ -67,21 +68,25 @@
 
     const arcs = pie(data);
 
+    // Arc-generator voor binnen- en buitenradius
     const arc = d3
       .arc()
       .innerRadius(innerRadius)
       .outerRadius(outerRadius);
 
+    // SVG centreren met een viewBox rond (0,0)
     svg
       .attr('viewBox', [-width / 2, -height / 2, width, height])
       .attr('width', '100%')
       .attr('height', '100%')
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
-    // 🔹 Tooltip helpers (gedeeld door paths + labels)
+    // Tooltip helpers (gedeeld door slices en labels)
     function showTooltip(event, d) {
-      const pct = total ? ((d.data.value / total) * 100)
-        .toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '0,0';
+      const pct = total
+        ? ((d.data.value / total) * 100)
+            .toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+        : '0,0';
 
       tooltipEl
         .style('opacity', 1)
@@ -108,7 +113,7 @@
       tooltipEl.style('opacity', 0);
     }
 
-    // 🔹 Donut-slices
+    // Donut-segmenten tekenen
     const paths = svg
       .append('g')
       .selectAll('path')
@@ -134,7 +139,7 @@
           .attr('transform', 'scale(1)');
       });
 
-    // 🔹 Labels in de slice, tekst afknippen als het niet past
+    // Labels in de donut; tekst wordt ingekort als het niet past
     const padding = 6;
     const maxTextWidth = outerRadius - innerRadius - padding;
 
@@ -154,9 +159,9 @@
         const textSel = d3.select(this)
           .attr('transform', `translate(${x},${y}) rotate(${angle})`)
           .attr('dy', '0.35em')
-          .text(label)
+          .text(label);
 
-        // Tekst inkorten tot hij in de beschikbare breedte past
+        // Tekst inkorten tot hij in de beschikbare boogbreedte past
         if (this.getComputedTextLength() > maxTextWidth) {
           let shortened = label;
           while (shortened.length > 0 && this.getComputedTextLength() > maxTextWidth) {
@@ -166,18 +171,20 @@
         }
       });
 
+    // Cleanup-functie om SVG en tooltip op te ruimen bij volgende draw/unmount
     cleanup = () => {
       svg.selectAll('*').remove();
       tooltipEl.remove();
     };
   }
 
+  // Tekenen bij mount + opruimen bij unmount
   onMount(() => {
     draw();
     return () => cleanup();
   });
 
-  // redraw bij wijzigingen in props
+  // Opnieuw tekenen wanneer props wijzigen
   $: if (svgEl) {
     draw();
   }
