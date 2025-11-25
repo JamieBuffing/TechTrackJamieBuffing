@@ -10,7 +10,7 @@
 </svelte:head>
 <!-- Header -->
 <header>
-	<h1>My Steam story</h1>
+	<h1>Steam story</h1>
 </header>
 <!-- Main -->
 <main>

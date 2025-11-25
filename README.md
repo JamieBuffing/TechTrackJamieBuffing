@@ -1,4 +1,6 @@
 # Steam Story 🎮
+**Allereerst een waarschuwing, de api is niet heel sterk. Niet te snel door de slides heen!!**
+---
 
 **Steam Story** is een interactieve datavisualisatie van je Steam-profiel, gebouwd met **SvelteKit** en **D3.js**.  
 De app vertelt jouw persoonlijke “Steam Story” aan de hand van grafieken, statistieken en visualisaties over je games, genres, achievements, vrienden en meer.
@@ -168,8 +170,14 @@ Er worden drie officiële Steam-endpoints gebruikt:
 
 ## Installatie & ontwikkeling
 
-### 1. Repository clonen
-
+### 1. Download de repo van de inlevering.
+### 2. Pak het uit en open het met vsc.
+### 3. Voer de volgende commands uit
+1. Om alle packeges te installeren
 ```bash
-git clone https://github.com/JamieBuffing/TechTrackJamieBuffing.git
-cd TechTrackJamieBuffing
+npm update
+```
+2. Om het te starten
+```bash
+npm run dev
+```
