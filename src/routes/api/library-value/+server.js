@@ -8,7 +8,7 @@ export async function GET({ url, fetch }) {
     // Haal de steamid op en controleer deze
     const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
+      return json({ error: 'Geen steamid gevonden' }, { status: 400 });
     }
 
     // Hier worden de games opgehaald en opgeslagen met app info maar zonder gratis games
@@ -138,6 +138,6 @@ export async function GET({ url, fetch }) {
     // En vang mogelijke errors op
   } catch (e) {
     console.error(e);
-    return json({ error: 'Failed to load library value' }, { status: 500 });
+    return json({ error: 'Library waarde kon niet laden' }, { status: 500 });
   }
 }

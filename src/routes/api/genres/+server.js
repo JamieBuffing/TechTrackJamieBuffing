@@ -7,7 +7,7 @@ export async function GET({ url, fetch }) {
   try {
     const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
+      return json({ error: 'Geen steamid gevonden' }, { status: 400 });
     }
 
     // Sla alles games op die de gebruiker heeft
@@ -118,6 +118,6 @@ export async function GET({ url, fetch }) {
     // En vang mogelijke errors op
   } catch (e) {
     console.error(e);
-    return json({ error: 'Failed to load genres' }, { status: 500 });
+    return json({ error: 'Genres konden niet laden' }, { status: 500 });
   }
 }
