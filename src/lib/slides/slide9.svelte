@@ -9,7 +9,7 @@
   let error = '';   // Als er een error melding is wordt die hier opgeslagen
   let games = [];
 
-  // 🔹 Cache per steamId: { games, error }
+  // Cache
   const cache = new Map();
 
   async function loadGames() {
@@ -19,7 +19,7 @@
       return;   // En stop met het uitvoeren van de rest van de functie
     }
 
-    // ✅ Cache check
+    // Cache check
     const cached = cache.get(steamId);
     if (cached) {
       games = cached.games;
@@ -43,7 +43,7 @@
       }
     } catch (e) {
       console.error(e);
-      error = 'Netwerkfout bij het laden van je games.';
+      error = 'Fout bij het laden van je games.';
     } finally {
       // ✅ Cache updaten
       cache.set(steamId, { games, error });
@@ -57,22 +57,22 @@
   }
 </script>
 
-
+<!-- Dan de inhoud van de slide -->
 <div class="slide9">
   <h2>Jouw Steam speeluniversum</h2>
-
+  <!-- Als er geen steamid is -->
   {#if !steamId}
     <p>Geen SteamID geselecteerd. Ga terug naar slide 1 om een account te kiezen.</p>
-
+  <!-- als hij aan eht laden is -->
   {:else if loading}
     <p>Je speeluniversum wordt opgebouwd…</p>
-
+  <!-- Als er een error is -->
   {:else if error}
     <p class="error">{error}</p>
-
+  <!-- Als er geen games in de games array zitten -->
   {:else if games.length === 0}
-    <p>We vonden geen games met speeltijd. Start een game en kom later terug 😉</p>
-
+    <p>We vonden geen games met speeltijd. Speel een game en kom later terug.</p>
+  <!-- Als alles goed gaat dan moet er wat extra info worden weergegeven voor de gebruiker -->
   {:else}
     <p class="hint">
       Elke cirkel is een game die je gespeeld hebt. Hoe groter de bubbel, hoe meer uur je erin hebt gestoken.
@@ -80,9 +80,9 @@
       Je kunt de bubbles ook een beetje verslepen.<br>
       Het zijn alleen games met meer dan 10 uur
     </p>
-
+    <!-- Het Grafiek -->
     <SteamBubbleGalaxy data={games} width={700} height={450} />
-
+    <!-- De footer -->
     <p class="footer">
       Dit is de laatste slide van je Steam Story – een overzicht van alle werelden waar je tijd in hebt geïnvesteerd.
     </p>

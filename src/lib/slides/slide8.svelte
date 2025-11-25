@@ -65,7 +65,7 @@
       }
     } catch (e) {
       console.error(e);
-      error = 'Netwerkfout bij het laden van library waarde.';
+      error = 'Fout bij het laden van library waarde.';
     } finally {
       // ✅ Cache updaten
       cache.set(steamId, {

@@ -75,7 +75,7 @@
       }
     } catch (err) {
       console.error(err);
-      error = 'Netwerkfout bij het laden van games.';
+      error = 'Fout bij het laden van games.';
     } finally {
       gamesCache.set(steamId, { games, error });
       loadingGames = false;
@@ -122,7 +122,7 @@
       }
     } catch (err) {
       console.error(err);
-      achError = 'Netwerkfout bij het laden van achievements.';
+      achError = 'Fout bij het laden van achievements.';
     } finally {
       const key2 = `${steamId}:${selectedAppId}`;
       achCache.set(key2, { achData, achError });

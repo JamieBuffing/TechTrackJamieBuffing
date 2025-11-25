@@ -49,7 +49,7 @@
       }
     } catch (e) {
       console.error(e);
-      error = 'Netwerkfout bij het laden van vriendstatistieken.';
+      error = 'Fout bij het laden van vriendstatistieken.';
       players = [];
       friendsCount = 0;
     } finally {
@@ -88,7 +88,8 @@
       Elke cirkel is een speler. <br>
       De horizontale as is do totale gespeelde tijd. <br>
       De verticale as is het totaal aantal spellen. <br>
-      De grootte van de cirkel laat zien hoeveel iemand recent heeft gespeeld (laatste 2 weken).
+      De grootte van de cirkel laat zien hoeveel iemand recent heeft gespeeld (laatste 2 weken).<br>
+      Je kan de bolletjes verplaatsen na 3 seconden keren ze weer terug.
     </p>
 
     <FriendsScatterPlot data={players} />

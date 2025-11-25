@@ -40,7 +40,7 @@ export async function GET({ url, fetch }) {
     // Als er een steam id is dan check even anders....
     const steamid = resolveSteamId(url);
     if (!steamid) {
-      return json({ error: 'Missing steamid and no DEFAULT_STEAM_ID set' }, { status: 400 });
+      return json({ error: 'Geen steamid gevonden' }, { status: 400 });
     }
 
     // Sla alles op onder friends
@@ -85,6 +85,6 @@ export async function GET({ url, fetch }) {
     // En vang mogelijke errors op
   } catch (e) {
     console.error(e);
-    return json({ error: 'Failed to load friend stats' }, { status: 500 });
+    return json({ error: 'Gegevens van vrienden konden niet laden' }, { status: 500 });
   }
 }
