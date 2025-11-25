@@ -11,6 +11,20 @@ De app vertelt jouw persoonlijke “Steam Story” aan de hand van grafieken, st
 
 ---
 
+## Installatie & ontwikkeling
+
+### 1. Download de repo van de inlevering.
+### 2. Pak het uit en open het met vsc.
+### 3. Voer de volgende commands uit
+1. Om alle packeges te installeren
+```bash
+npm update
+```
+2. Om het te starten
+```bash
+npm run dev
+```
+
 ## Inhoud
 
 - [Live demo](#live-demo)
@@ -167,17 +181,3 @@ Er worden drie officiële Steam-endpoints gebruikt:
   D3-componenten per slide (bijvoorbeeld de bar chart en donut chart voor je topgames).
 
 ---
-
-## Installatie & ontwikkeling
-
-### 1. Download de repo van de inlevering.
-### 2. Pak het uit en open het met vsc.
-### 3. Voer de volgende commands uit
-1. Om alle packeges te installeren
-```bash
-npm update
-```
-2. Om het te starten
-```bash
-npm run dev
-```
