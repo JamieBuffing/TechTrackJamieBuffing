@@ -181,3 +181,54 @@ Er worden drie officiële Steam-endpoints gebruikt:
   D3-componenten per slide (bijvoorbeeld de bar chart en donut chart voor je topgames).
 
 ---
+
+## 🔍 Validiteit van de data
+
+Bij het werken met de Steam Web API merkte ik dat de validiteit van de data niet altijd gegarandeerd is. De API levert wel actuele en officiële informatie, maar er zitten een aantal beperkingen en onzekerheden aan vast die invloed hebben op de betrouwbaarheid van mijn visualisaties.
+
+### 1. Publieke versus privéprofielen
+De grootste beperking is dat de API **geen data teruggeeft wanneer een gebruiker (gedeeltelijk) privé staat**.  
+In dat geval ontbreken:
+- speeltijdgegevens  
+- achievements  
+- genres  
+- vriendenstatistieken  
+
+Dit betekent dat de volledigheid van mijn dataset afhankelijk is van de privacy-instellingen van de gebruiker. Bij sommige testaccounts merkte ik dat delen van de data incompleet waren, wat directe impact heeft op de analyse.
+
+### 2. Inconsistenties tussen API-endpoints
+De Steam API bestaat uit meerdere losse diensten (ISteamUser, ISteamUserStats, ISteamApps enz.). Deze leveren soms data die:
+- verschillende datavelden gebruiken voor dezelfde informatie  
+- ontbrekende of lege velden bevatten  
+- niet synchroon zijn met elkaar (bijv. achievements die bestaan maar geen beschrijving hebben)
+
+Voor mijn “Top Games”, “Genre”, en “Achievements” moest ik soms data van verschillende endpoints combineren, waarbij kleine verschillen in structuur problemen konden geven. Daarom heb ik zelf een processing-laag toegevoegd om inconsistenties op te vangen.
+
+### 3. Verouderde of incomplete gegevens
+Sommige games geven hun achievements niet (meer) door via de API, of hebben geen correcte schema-informatie in **GetSchemaForGame**.  
+Ook komt het voor dat:
+- afbeeldingen niet bestaan (404)  
+- statische metadata (zoals genre) niet door Steam wordt beheerd  
+- third-party tags soms ontbreken
+
+Dit kan ervoor zorgen dat visualisaties minder compleet lijken dan in werkelijkheid.
+
+### 4. Geen officiële guarantees
+Steam geeft **geen garanties over stabiliteit, uptime, rate limits of datakwaliteit**.  
+Hoewel de API in de praktijk goed werkt, blijft er een risico:
+- dat endpoints tijdelijk niet functioneren  
+- dat data langzaam wordt geüpdatet  
+- dat bepaalde gegevens achterlopen op de actuele staat van een game
+
+### 5. Impact op mijn narratief
+Deze onzekerheden betekenen dat mijn dashboard afhankelijk is van:
+- het gekozen Steam-account  
+- de volledigheid van de game-metadata  
+- de beschikbaarheid van achievement-data voor specifieke games
+
+Daarom toon ik duidelijke foutmeldingen, gebruik ik loading states en leg ik in de wiki uit dat de gebruiker **een volledig openbaar Steam-profiel** moet hebben voor de beste resultaten.
+
+---
+
+**Kortom:** de Steam API is een krachtige bron, maar niet 100% betrouwbaar.  
+Door zelf data-validatie en fallback-controls toe te voegen heb ik ervoor gezorgd dat mijn dashboard toch stabiel, bruikbaar en begrijpelijk blijft.
