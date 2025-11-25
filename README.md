@@ -16,7 +16,7 @@ De app vertelt jouw persoonlijke “Steam Story” aan de hand van grafieken, st
 ### 1. Download de repo van de inlevering.
 ### 2. Pak het uit en open het met vsc.
 ### 3. Voer de volgende commands uit
-1. Om alle packeges te installeren
+1. Om alle packages te installeren
 ```bash
 npm update
 ```
@@ -137,12 +137,12 @@ De precieze data per slide is beschreven in de wiki-pagina **“Het werken met d
 - SvelteKit endpoints in `src/routes/api/*`
 - Eigen API-routes voor o.a.:
   - `/api/profile`
-  - `/api/top-games`
+  - `/api/topGames`
   - `/api/genres`
   - `/api/achievements`
-  - `/api/friends-stats`
-  - `/api/hidden-gems`
-  - `/api/library-value`
+  - `/api/friendsStats`
+  - `/api/hiddenGems`
+  - `/api/libraryValue`
 
 **Externe API’s**
 

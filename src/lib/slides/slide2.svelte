@@ -37,7 +37,7 @@
     // Anders echt laden
     try {
       // Uit de volgende api route
-      const res = await fetch(`/api/top-games?steamid=${steamId}`);
+      const res = await fetch(`/api/topGames?steamid=${steamId}`);
       const json = await res.json();
 
       if (!res.ok) { 

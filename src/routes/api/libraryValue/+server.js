@@ -1,4 +1,4 @@
-// src/routes/api/library-value/+server.js
+// src/routes/api/libraryValue/+server.js
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames, getStoreDetails } from '$lib/server/steamApi.js';
 

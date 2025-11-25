@@ -22,7 +22,7 @@
   let cleanup = () => {};
   let tooltipEl;
 
-  // Tekent / hertekent de top-games staafdiagram
+  // Tekent / hertekent de topGames staafdiagram
   async function draw() {
     cleanup();
 
@@ -110,7 +110,7 @@
       .select('line')
       .attr('stroke-opacity', 0);
 
-    // Staafjes voor de top-games
+    // Staafjes voor de topGames
     const bars = g
       .append('g')
       .selectAll('.bar')

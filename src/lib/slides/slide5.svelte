@@ -35,8 +35,8 @@
     error = '';   // De error voor de zekerheid maar even legen.
     players = [];
 
-    try {   // Probeer de vrienden op te halen uit de api route voor api/friends-stats/+server.js met het gekregen steamId
-      const res = await fetch(`/api/friends-stats?steamid=${steamId}`);
+    try {   // Probeer de vrienden op te halen uit de api route voor api/friendsStats/+server.js met het gekregen steamId
+      const res = await fetch(`/api/friendsStats?steamid=${steamId}`);
       const json = await res.json();
 
       if (!res.ok || json.error) {    // Als er een error is moet die geplaats worden in de let error

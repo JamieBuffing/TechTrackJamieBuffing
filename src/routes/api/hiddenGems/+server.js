@@ -1,4 +1,4 @@
-// src/routes/api/hidden-gems/+server.js
+// src/routes/api/hiddenGems/+server.js
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames, getReviewSummary } from '$lib/server/steamApi.js';
 

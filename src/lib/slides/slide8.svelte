@@ -45,8 +45,8 @@
     gamesPricedCount = 0;
     totalOwnedCount = 0;
 
-    try {   // Probeer de games en hun waarde op te halen uit de api route voor api/library-value/+server.js met het gekregen steamId
-      const res = await fetch(`/api/library-value?steamid=${steamId}`);
+    try {   // Probeer de games en hun waarde op te halen uit de api route voor api/libraryValue/+server.js met het gekregen steamId
+      const res = await fetch(`/api/libraryValue?steamid=${steamId}`);
       const json = await res.json();
 
       if (!res.ok || json.error) {

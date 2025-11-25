@@ -1,4 +1,4 @@
-// src/routes/api/top-games/+server.js
+// src/routes/api/topGames/+server.js
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames } from '$lib/server/steamApi.js';
 

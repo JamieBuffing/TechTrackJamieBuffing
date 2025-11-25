@@ -1,4 +1,4 @@
-// src/routes/api/owned-games-simple/+server.js
+// src/routes/api/ownedGamesSimple/+server.js
 import { json } from '@sveltejs/kit';
 import { resolveSteamId, getOwnedGames } from '$lib/server/steamApi.js';
 

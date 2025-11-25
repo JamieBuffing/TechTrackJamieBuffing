@@ -32,8 +32,8 @@
     error = '';   // De error voor de zekerheid maar even legen.
     gems = [];
 
-    try {   // Probeer de games op te halen uit de api route voor api/hidden-gems/+server.js met het gekregen steamId
-      const res = await fetch(`/api/hidden-gems?steamid=${steamId}`);
+    try {   // Probeer de games op te halen uit de api route voor api/hiddenGems/+server.js met het gekregen steamId
+      const res = await fetch(`/api/hiddenGems?steamid=${steamId}`);
       const json = await res.json();
 
       if (!res.ok || json.error) {    // Als er een error is moet die geplaats worden in de let error

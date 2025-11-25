@@ -1,4 +1,4 @@
-// src/routes/api/friends-stats/+server.js
+// src/routes/api/friendsStats/+server.js
 import { json } from '@sveltejs/kit';
 import {
   resolveSteamId,
