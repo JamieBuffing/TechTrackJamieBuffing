@@ -13,8 +13,8 @@
 
   // data: [{ steamid, personaname, avatar, totalGames, totalHours, recentHours, isSelf }]
   export let data = [];
-  export let width = 700;
-  export let height = 420;
+  export let width = 420;
+  export let height = 500;
 
   let svgEl;
   let cleanup = () => {};
@@ -27,7 +27,7 @@
 
     const d3 = await loadD3();
 
-    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+    const margin = { top: 40, right: 50, bottom: 60, left: 50 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -65,7 +65,7 @@
     const radiusScale = d3
       .scaleSqrt()
       .domain([0, maxRecentHours || 1])
-      .range([12, 38]); // min / max grootte van de bollen
+      .range([12, 25]); // min / max grootte van de bollen
 
     // 🔹 defs met avatar-patterns (met grootte gebaseerd op radius)
     const defs = svg.append('defs');
@@ -85,6 +85,7 @@
       pattern
         .append('image')
         .attr('href', p.avatar)
+        .style('opacity', '0.8')
         .attr('x', 0)
         .attr('y', 0)
         .attr('width', r * 2)
@@ -156,6 +157,56 @@
       )
       .attr('stroke', (d) => (d.isSelf ? '#ffffff' : '#1b2838'))
       .attr('stroke-width', (d) => (d.isSelf ? 2 : 1))
+      .call(
+        d3
+          .drag()
+          .on('start', function (event, d) {
+            const circle = d3.select(this);
+
+            // eventueel oude timeout annuleren
+            if (d._resetTimeout) {
+              clearTimeout(d._resetTimeout);
+              d._resetTimeout = null;
+            }
+
+            circle.raise(); // tijdens drag bovenop
+          })
+          .on('drag', function (event, d) {
+            d3.select(this)
+              .attr('cx', event.x)
+              .attr('cy', event.y);
+
+            // tooltip ook verplaatsen tijdens drag
+            tooltip
+              .style('opacity', 1)
+              .style('left', event.sourceEvent.pageX + 12 + 'px')
+              .style('top', event.sourceEvent.pageY - 28 + 'px');
+          })
+          .on('end', function (event, d) {
+            const circle = d3.select(this);
+
+            const targetX = xScale(d.totalHours);
+            const targetY = yScale(d.totalGames);
+
+            d._resetTimeout = setTimeout(() => {
+              circle
+                .transition()
+                .duration(600)
+                .attr('cx', targetX)
+                .attr('cy', targetY)
+                .on('end', () => {
+                  // 👉 na terug-animatie: volgorde herstellen
+                  g.selectAll('circle.player')
+                    .sort((a, b) => {
+                      const ra = radiusScale(a.recentHours || 0);
+                      const rb = radiusScale(b.recentHours || 0);
+                      // grote eerst, kleine laatst → kleine liggen bovenop
+                      return rb - ra;
+                    });
+                });
+            }, 3000);
+          })
+      )
       .on('mouseenter', function (event, d) {
         tooltip
           .style('opacity', 1)
@@ -165,8 +216,14 @@
             Totaal: ${d.totalHours} uur<br/>
             Laatste 2 weken: ${d.recentHours} uur
           `);
+
+        // direct op juiste plek zetten
+        tooltip
+          .style('left', event.pageX + 12 + 'px')
+          .style('top', event.pageY - 28 + 'px');
       })
       .on('mousemove', function (event) {
+        // follow while hovering
         tooltip
           .style('left', event.pageX + 12 + 'px')
           .style('top', event.pageY - 28 + 'px');
@@ -174,6 +231,7 @@
       .on('mouseleave', function () {
         tooltip.style('opacity', 0);
       });
+
 
     // cleanup functie voor volgende draws / unmount
     cleanup = () => {

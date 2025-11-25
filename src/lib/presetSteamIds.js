@@ -6,7 +6,6 @@ export const presetSteamIds = [
   { label: 'Jessev10', id: '76561198322036477' },
   { label: 'Jeremy', id: '76561198134778664' },
   { label: 'Jerry van Rijsbergen', id: '76561198316063960' },
-  { label: 'Hennie', id: '76561198079219992' },
   { label: 'Than', id: '76561198099044122' },   // Tech Track leerling Than
   { label: 'David', id: '76561198863013731'},   // Tech Track leerling David
   { label: 'James', id: '76561198873928636'},   // Tech Track leerling James

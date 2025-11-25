@@ -43,9 +43,15 @@
       n.r = radiusScale(n.hours);
     });
 
-    const color = d3
-      .scaleSequential(d3.interpolateBlues)
-      .domain([0, maxHours]);
+    const color = d3.scaleLinear()
+      .domain([0, maxHours])
+      .range(["#2a475e", "#66c0f4"])
+      .interpolate(d3.interpolateHcl);
+
+    const textColor = (d) => {
+      const c = d3.hcl(color(d.hours));
+      return c.l < 55 ? "#c7d5e0" : "#1b2838";
+    };
 
     svg
       .attr('viewBox', [-width / 2, -height / 2, width, height])
@@ -93,8 +99,8 @@
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
       .attr('pointer-events', 'none')
-      .style('font-size', '10px')
-      .style('fill', '#c7d5e0')
+      .style('font-size', '15px')
+      .style("fill", (d) => textColor(d))
       .text((d) => {
         // heel korte label (eerste woord / max 10 chars)
         const base = d.name || '';

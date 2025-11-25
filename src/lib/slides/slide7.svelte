@@ -46,7 +46,7 @@
       }
     } catch (e) {
       console.error(e);
-      error = 'Netwerkfout bij het laden van hidden gems.';
+      error = 'Fout bij het laden van hidden gems.';
     } finally {
       // ✅ Cache updaten
       cache.set(steamId, { gems, error });

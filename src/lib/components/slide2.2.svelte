@@ -52,7 +52,7 @@
       .style('z-index', 10);
 
     const minWidth = 300;
-    const minHeight = 200;
+    const minHeight = 210;
 
     const w = Math.max(width, minWidth);
     const h = Math.max(height, minHeight);
@@ -177,12 +177,17 @@
       .attr('transform', `translate(0,${innerHeight})`)
       .call(xAxis);
 
+    // ⭐ Maak de tick labels groter (20px)
+    xAxisG.selectAll('text')
+      .attr('font-size', 18)
+
     xAxisG
       .append('text')
       .attr('x', innerWidth / 2)
-      .attr('y', 32)
+      .attr('y', 40)
       .attr('fill', 'currentColor')
       .attr('text-anchor', 'middle')
+      .attr('font-size', 20)
       .text('Uren gespeeld');
 
     cleanup = () => {

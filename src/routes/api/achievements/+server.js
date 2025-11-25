@@ -16,7 +16,7 @@ export async function GET({ url, fetch }) {
     // Check of steamid en appid geldig zijn
     if (!steamid || !appid) {
       return json(
-        { error: 'Missing steamid or appid (and no DEFAULT_STEAM_ID set)' },
+        { error: 'Geen steamid gevonden' },
         { status: 400 }
       );
     }
@@ -81,6 +81,6 @@ export async function GET({ url, fetch }) {
   // Vang mogelijke fouten op
   } catch (e) {
     console.error(e);
-    return json({ error: 'Failed to load achievements' }, { status: 500 });
+    return json({ error: 'Achievements konden niet laden' }, { status: 500 });
   }
 }
